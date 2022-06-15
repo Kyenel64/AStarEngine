@@ -17,11 +17,14 @@ public:
 	Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSION_MAJOR, int GLVERSION_MINOR);
 	~Renderer();
 
-	void Start();
+	GLFWwindow* getWindow() const;
+	Shader* getShader() const;
+	unsigned int getVAO() const;
+
+	void Render(RayTracer* RT);
 
 private:
 	GLFWwindow* window;
-	unsigned char* data;
 	Shader* ourShader;
 	unsigned int VBO, VAO, EBO;
 	int width, height;

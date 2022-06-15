@@ -1,11 +1,13 @@
 #pragma once
 
-class RayTracer
+#include "macros.h"
+
+class HOTH_API RayTracer
 {
 public:
 	RayTracer();
 	~RayTracer();
-	bool GenerateFrame(float time);
+	bool GenerateFrame(double time);
 
 	unsigned char* getFrame() const;
 private:

@@ -91,6 +91,13 @@ Renderer::Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSI
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	// load and create a texture 
+	// -------------------------
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 }
 
 Renderer::~Renderer()
@@ -98,40 +105,39 @@ Renderer::~Renderer()
 	
 }
 
-void Renderer::Start()
+void Renderer::Render(RayTracer* RT)
 {
-	// Ray Tracer
-	RayTracer r;
+	if (glfwWindowShouldClose(window))
+		glfwTerminate();
 
-	// load and create a texture 
-	// -------------------------
-	unsigned int texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	
-	while (!glfwWindowShouldClose(window))
-	{
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// update Frame
-		if (r.GenerateFrame(glfwGetTime()))
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, r.getFrame());
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		else
-		{
-			std::cout << "Failed to load texture" << std::endl;
-		}
+	// update Frame
+	if (RT->GenerateFrame(glfwGetTime()))
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, RT->getFrame());
+	else
+		std::cout << "Failed to load texture" << std::endl;
 
 
-		// render container
-		ourShader->use();
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	// render frame
+	ourShader->use();
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
+
+GLFWwindow* Renderer::getWindow() const
+{
+	return window;
+}
+
+Shader* Renderer::getShader() const
+{
+	return ourShader;
+}
+
+unsigned int Renderer::getVAO() const
+{
+	return VAO;
 }
