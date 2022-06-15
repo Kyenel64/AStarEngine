@@ -2,8 +2,11 @@
 
 int main()
 {
-	Window w(1920, 1080, "Test Window", 4, 3);
-	w.Start();
+	int width = 1920;
+	int height = 1080;
+
+	Renderer r(width, height, "Test Window", 4, 3);
+	r.Start();
 
 	return 0;
 }

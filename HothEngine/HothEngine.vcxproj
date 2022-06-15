@@ -56,7 +56,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;HT_PLATFORM_WINDOWS;HT_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\japan\Desktop\HothEngine\Dependencies\include;C:\Users\japan\Desktop\HothEngine\HothEngine\src\Hoth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\japan\Desktop\HothEngine\HothEngine\vendor;C:\Users\japan\Desktop\HothEngine\Dependencies\include;C:\Users\japan\Desktop\HothEngine\HothEngine\src\Hoth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -87,10 +87,19 @@
   <ItemGroup>
     <ClInclude Include="src\Hoth.h" />
     <ClInclude Include="src\Hoth\macros.h" />
-    <ClInclude Include="src\Hoth\Window\Window.h" />
+    <ClInclude Include="src\Hoth\RayTracer\RayTracer.h" />
+    <ClInclude Include="src\Hoth\Renderer\Renderer.h" />
+    <ClInclude Include="src\Hoth\Renderer\Shader.h" />
+    <ClInclude Include="vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Hoth\Window\Window.cpp" />
+    <ClCompile Include="glad.c" />
+    <ClCompile Include="src\Hoth\RayTracer\RayTracer.cpp" />
+    <ClCompile Include="src\Hoth\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Hoth\Renderer\Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\Hoth\Renderer\container.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

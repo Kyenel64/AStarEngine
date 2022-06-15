@@ -2,5 +2,5 @@
 
 // ------------------- Include files -------------------
 
-#include "Hoth/Window/Window.h"
+#include "Hoth/Renderer/Renderer.h"
 #include "macros.h"
