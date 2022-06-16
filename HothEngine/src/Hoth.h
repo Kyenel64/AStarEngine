@@ -2,5 +2,5 @@
 
 // ------------------- Include files -------------------
 
-#include "Hoth/Renderer/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "macros.h"

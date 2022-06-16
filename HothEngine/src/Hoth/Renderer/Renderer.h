@@ -3,11 +3,10 @@
 
 #include "macros.h"
 #include "Shader.h"
-#include "RayTracer/RayTracer.h"
+#include "RT.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "stb_image.h"
 
 #include <string>
 
@@ -17,15 +16,10 @@ public:
 	Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSION_MAJOR, int GLVERSION_MINOR);
 	~Renderer();
 
-	GLFWwindow* getWindow() const;
-	Shader* getShader() const;
-	unsigned int getVAO() const;
-
 	void Render(RayTracer* RT);
+	void Terminate();
 
 private:
 	GLFWwindow* window;
-	Shader* ourShader;
-	unsigned int VBO, VAO, EBO;
 	int width, height;
 };

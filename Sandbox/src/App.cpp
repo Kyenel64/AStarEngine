@@ -7,7 +7,9 @@ int main()
 
 	Renderer r(width, height, "Test Window", 4, 3);
 
-	RayTracer* RT = new RayTracer;
+	RayTracer* RT = new RayTracer(width, height);
+
+	//RT->addObject(sphere);
 
 
 	while (true)
@@ -15,7 +17,7 @@ int main()
 		r.Render(RT);
 	}
 
-	glfwTerminate();
+	r.Terminate();
 
 	return 0;
 }

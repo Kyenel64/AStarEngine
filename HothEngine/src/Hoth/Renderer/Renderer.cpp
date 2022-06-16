@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+// Simple shaders to display texture quad on screen.
 const char* vertexShaderSource = 
 "#version 430 core\n"
 "layout(location = 0) in vec3 aPos;\n"
@@ -57,7 +58,7 @@ Renderer::Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSI
 	// Set viewport inside the window
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
-	ourShader = new Shader(vertexShaderSource, fragmentShaderSource);
+	Shader* ourShader = new Shader(vertexShaderSource, fragmentShaderSource);
 
 	float vertices[] = {
 		 // positions         // texCoords
@@ -72,7 +73,10 @@ Renderer::Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSI
 		1, 2, 3 
 	};
 
+	ourShader->use();
+
 	// Generate buffers
+	unsigned int VAO, VBO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -118,8 +122,6 @@ void Renderer::Render(RayTracer* RT)
 
 
 	// render frame
-	ourShader->use();
-	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
@@ -127,17 +129,7 @@ void Renderer::Render(RayTracer* RT)
 	glfwPollEvents();
 }
 
-GLFWwindow* Renderer::getWindow() const
+void Renderer::Terminate()
 {
-	return window;
-}
-
-Shader* Renderer::getShader() const
-{
-	return ourShader;
-}
-
-unsigned int Renderer::getVAO() const
-{
-	return VAO;
+	glfwTerminate();
 }

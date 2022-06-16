@@ -53,14 +53,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;HT_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\japan\Desktop\HothEngine\HothEngine\vendor;$(SolutionDir)HothEngine\src\Hoth;C:\Users\japan\Desktop\HothEngine\Dependencies\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RayTracer\src;$(SolutionDir)HothEngine\vendor;$(SolutionDir)HothEngine\src\Hoth;$(SolutionDir)Dependencies\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);HothEngine.lib;glfw3.lib;opengl32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\japan\Desktop\HothEngine\Dependencies\lib;C:\Users\japan\Desktop\HothEngine\bin\Debug-x64\HothEngine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);HothEngine.lib;glfw3.lib;opengl32.lib;RayTracer.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\Debug-x64\RayTracer;$(SolutionDir)Dependencies\lib;$(SolutionDir)bin\Debug-x64\HothEngine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
