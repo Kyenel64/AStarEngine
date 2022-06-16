@@ -59,11 +59,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <Defines>HT_BUILD_DLL;</Defines>
-      <Include>%(Include)</Include>
+      <Defines>RT_BUILD_DLL;</Defines>
+      <Include>
+      </Include>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(SolutionDir)bin\$(Configuration)-$(Platform)\RayTracer\*.dll" "$(SolutionDir)bin\$(Configuration)-$(Platform)\Sandbox"</Command>
+      <Command>xcopy /y /d "$(SolutionDir)bin\$(Configuration)-$(Platform)\RayTracer\*.dll" "$(SolutionDir)bin\$(Configuration)-$(Platform)\HothEngine"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -86,6 +88,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CudaCompile Include="src\RayTracer\Classes\vec3.cu" />
     <CudaCompile Include="src\RayTracer\RayTracer.cu" />
   </ItemGroup>
   <ItemGroup>

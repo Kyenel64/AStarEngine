@@ -23,6 +23,7 @@ C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\float.h
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\locale.h
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\malloc.h
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\math.h
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\memory.h
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\share.h
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\stddef.h
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\stdio.h
@@ -114,11 +115,27 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\crt\math_functi
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\crt\math_functions.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\crt\sm_70_rt.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\crt\sm_80_rt.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\cuda.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\cuda_device_runtime_api.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\cuda_runtime.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\cuda_runtime_api.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\cuda_surface_types.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\cuda_texture_types.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_discrete.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_discrete2.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_globals.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_kernel.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_lognormal.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_mrg32k3a.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_mtgp32.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_mtgp32_kernel.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_normal.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_normal_static.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_philox4x32_x.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_poisson.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_precalc.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\curand_uniform.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\device_atomic_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\device_launch_parameters.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\device_types.h
@@ -143,5 +160,4 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\texture_types.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_functions.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_types.h
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\macros.cuh
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer.cuh
+C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\vec3.cuh

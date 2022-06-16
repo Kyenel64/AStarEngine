@@ -19,7 +19,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -56,7 +56,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;HT_PLATFORM_WINDOWS;HT_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)RayTracer\src;$(SolutionDir)HothEngine\vendor;$(SolutionDir)Dependencies\include;$(SolutionDir)HothEngine\src\Hoth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RayTracer\src;$(SolutionDir)HothEngine\vendor;$(SolutionDir)Dependencies\include;$(SolutionDir)HothEngine\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -66,7 +66,8 @@
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(SolutionDir)bin\$(Configuration)-$(Platform)\HothEngine\*.dll" "$(SolutionDir)bin\$(Configuration)-$(Platform)\Sandbox"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -86,12 +87,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Hoth.h" />
     <ClInclude Include="src\Hoth\macros.h" />
     <ClInclude Include="src\Hoth\Renderer\Renderer.h" />
     <ClInclude Include="src\Hoth\Renderer\Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Hoth\main.cpp" />
     <ClCompile Include="vendor\glad.c" />
     <ClCompile Include="src\Hoth\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Hoth\Renderer\Shader.cpp" />
