@@ -12,21 +12,21 @@
 #endif
 
 __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color);
-__device__ color ray_color(const Ray& r, Hittable** world);
-__global__ void render(unsigned char* frame, Data d, Hittable** world);
+__device__ color ray_color(const Ray& r, Hittable** world, float time);
+__global__ void render(unsigned char* frame, Data d, Hittable** world, float time);
 __global__ void create_world(Hittable** d_list, Hittable** d_world);
 __global__ void free_world(Hittable** d_list, Hittable** d_world);
 
-RayTracer::RayTracer(Data &data) : data(data)
+RayTracer::RayTracer(Data &data)
 {
 	int num_pixels = data.image_width * data.image_height;
-	frame_size = 3 * num_pixels * sizeof(double);
-	blockX = 4;
-	blockY = 4;
+	frame_size = 3 * num_pixels * sizeof(float);
+	blockX = 8;
+	blockY = 8;
 
 	// -------------------- World -----------------------
-	cudaMallocManaged(&d_list, 2 * sizeof(Hittable *));
-	cudaMallocManaged(&d_world, sizeof(Hittable *));
+	cudaMalloc(&d_list, 2 * sizeof(Hittable *));
+	cudaMalloc(&d_world, sizeof(Hittable *));
 	create_world CUDA_KERNEL(1, 1)(d_list, d_world);
 	cudaDeviceSynchronize();
 
@@ -51,7 +51,7 @@ unsigned char* RayTracer::getFrame() const
 }
 
 // fills frame[] with render. Acts like main()
-bool RayTracer::GenerateFrame()
+bool RayTracer::GenerateFrame(Data& data, float time)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -59,7 +59,7 @@ bool RayTracer::GenerateFrame()
 	dim3 blocks(data.image_width / blockX + 1, data.image_height / blockY + 1);
 	dim3 threads(blockX, blockY);
 
-	render CUDA_KERNEL(blocks, threads)(frame, data, d_world);
+	render CUDA_KERNEL(blocks, threads)(frame, data, d_world, time);
 	cudaDeviceSynchronize();
 
 
@@ -79,13 +79,12 @@ __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_c
 }
 
 // Return color of pixel
-__device__ color ray_color(const Ray& r, Hittable **world)
+__device__ color ray_color(const Ray& r, Hittable **world, float time)
 {
 	// temp hit record
 	hit_record rec;
 	if ((*world)->hit(r, 0, FLT_MAX, rec)) {
-		printf("test");
-		return 0.5 * (rec.normal + color(1, 1, 1));
+		return time * (rec.normal + color(1, 1, 1));
 	}
 
 	// background color
@@ -94,7 +93,7 @@ __device__ color ray_color(const Ray& r, Hittable **world)
 	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
-__global__ void render(unsigned char* frame, Data d, Hittable **world) {
+__global__ void render(unsigned char* frame, Data d, Hittable **world, float time) {
 	// initialize variables and random state
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -102,11 +101,11 @@ __global__ void render(unsigned char* frame, Data d, Hittable **world) {
 		return;
 	int pixel_index = j * d.image_width * 3 + i * 3;
 
-	double u = double(i) / double(d.image_width - 1);
-	double v = double(j) / double(d.image_height - 1);
+	float u = float(i) / float(d.image_width - 1);
+	float v = float(j) / float(d.image_height - 1);
 
 	Ray r(d.origin, d.lower_left_corner + u * d.horizontal + v * d.vertical);
-	write_color(frame, pixel_index, ray_color(r, world));
+	write_color(frame, pixel_index, ray_color(r, world, time));
 }
 
 // Allocate world

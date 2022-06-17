@@ -1,23 +1,20 @@
 #include "sphere.cuh"
 
-__device__ bool Sphere::hit(const Ray& r, double t_min, double t_max, hit_record& rec) const
+__device__ bool Sphere::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const
 {
-    // Sphere equation to detect hit
     vec3 oc = r.origin() - center;
-    double a = r.direction().length_squared();
-    double half_b = dot(oc, r.direction());
-    double c = oc.length_squared() - radius * radius;
-
-    double discriminant = half_b * half_b - a * c;
-    if (discriminant < 0)
+    float a = r.direction().length_squared();
+    float b = dot(oc, r.direction());
+    float c = oc.length_squared() - radius * radius;
+    float discriminant = b * b - a * c;
+    if (discriminant < 0.0)
         return false;
-    double sqrtd = sqrtf(discriminant);
+    float sqrtd = sqrtf(discriminant);
 
-    // Find nearest root
-    double root = (-half_b - sqrtd) / a;
+    float root = (-b - sqrtd) / a;
     if (root < t_min || t_max < root)
     {
-        root = (-half_b + sqrtd) / a;
+        root = (-b + sqrtd) / a;
         if (root < t_min || t_max < root)
             return false;
     }

@@ -15,7 +15,7 @@ public:
         list_size = n;
     }
 
-    __device__ virtual bool hit(const Ray& r, double t_min, double t_max, hit_record& rec) const override;
+    __device__ virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
 
 public:
     Hittable** list;

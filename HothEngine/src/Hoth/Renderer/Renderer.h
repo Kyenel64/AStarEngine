@@ -15,7 +15,7 @@ public:
 	Renderer(Data& data, std::string title, int GLVERSION_MAJOR, int GLVERSION_MINOR);
 	~Renderer();
 
-	void Render(RayTracer* RT);
+	void Render(RayTracer* RT, Data& data);
 	void Terminate();
 
 private:

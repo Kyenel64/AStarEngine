@@ -90,7 +90,6 @@
   <ItemGroup>
     <CudaCompile Include="src\RayTracer\Classes\hittable_list.cu" />
     <CudaCompile Include="src\RayTracer\Classes\sphere.cu" />
-    <CudaCompile Include="src\RayTracer\Classes\vec3.cu" />
     <CudaCompile Include="src\RayTracer\RayTracer.cu" />
   </ItemGroup>
   <ItemGroup>

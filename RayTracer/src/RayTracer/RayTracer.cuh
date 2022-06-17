@@ -8,14 +8,14 @@
 
 struct RT_API Data // serialize
 {
-	const double aspect_ratio = 16.0 / 9.0;
+	const float aspect_ratio = float(16.0 / 9.0);
 	int image_width = 1280;
 	int image_height = 700;
 
 	// Camera properties
-	double viewport_height = 2.0;
-	double viewport_width = aspect_ratio * viewport_height;
-	double focal_length = 1.0;
+	float viewport_height = 2.0;
+	float viewport_width = aspect_ratio * viewport_height;
+	float focal_length = 1.0;
 	point3 origin = point3(0, 0, 0);
 	vec3 horizontal = vec3(viewport_width, 0.0, 0.0);
 	vec3 vertical = vec3(0.0, viewport_height, 0.0);
@@ -30,7 +30,7 @@ public:
 	RayTracer(Data &data);
 	~RayTracer();
 
-	bool GenerateFrame();
+	bool GenerateFrame(Data& data, float time);
 
 	unsigned char* getFrame() const;
 

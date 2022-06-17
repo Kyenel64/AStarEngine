@@ -11,7 +11,7 @@ int main()
 
 	while (true)
 	{
-		r.Render(RT);
+		r.Render(RT, data);
 	}
 
 	r.Terminate();

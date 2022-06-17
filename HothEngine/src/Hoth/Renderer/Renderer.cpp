@@ -114,13 +114,13 @@ Renderer::~Renderer()
 	
 }
 
-void Renderer::Render(RayTracer* RT)
+void Renderer::Render(RayTracer* RT, Data& data)
 {
 	if (glfwWindowShouldClose(window))
 		glfwTerminate();
 
 	// update Frame
-	if (RT->GenerateFrame())
+	if (RT->GenerateFrame(data, glfwGetTime()))
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.image_width, data.image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, RT->getFrame());
 	else
 		std::cout << "Failed to load texture" << std::endl;

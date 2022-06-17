@@ -1,6 +1,6 @@
 #include "hittable_list.cuh"
 
-__device__ bool Hittable_list::hit(const Ray& r, double t_min, double t_max, hit_record& rec) const {
+__device__ bool Hittable_list::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const {
 
     hit_record temp_rec;
     bool hit_anything = false;
