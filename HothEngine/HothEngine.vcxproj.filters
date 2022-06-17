@@ -39,9 +39,4 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="src\Hoth\Renderer\container.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

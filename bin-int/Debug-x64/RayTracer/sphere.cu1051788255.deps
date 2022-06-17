@@ -80,7 +80,6 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.3132
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\vcruntime_new_debug.h
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\vcruntime_string.h
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\vcruntime_typeinfo.h
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\vector
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\xatomic.h
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\xcall_once.h
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\xerrc.h
@@ -145,7 +144,7 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_function
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_functions.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_types.h
 C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\hittable.cuh
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\hittable_list.cuh
 C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\macros.cuh
 C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\ray.cuh
+C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\sphere.cuh
 C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\vec3.cuh

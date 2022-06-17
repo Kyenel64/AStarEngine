@@ -31,16 +31,20 @@ const char* fragmentShaderSource =
 "	FragColor = texture(texture1, TexCoord);\n"
 "}";
 
-Renderer::Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSION_MAJOR, 
-	int GLVERSION_MINOR) : width(SCR_WIDTH), height(SCR_HEIGHT)
+// declarations
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+Renderer::Renderer(Data& data, std::string title, int GLVERSION_MAJOR, 
+	int GLVERSION_MINOR) : data(data)
 {
 	glfwInit();
-
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLVERSION_MAJOR);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLVERSION_MINOR);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE); // Maximized window
 
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, title.c_str(), NULL, NULL);
+	window = glfwCreateWindow(data.image_width, data.image_height, title.c_str(), NULL, NULL);
+
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -48,6 +52,7 @@ Renderer::Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSI
 	}
 
 	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -56,7 +61,7 @@ Renderer::Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSI
 	}
 
 	// Set viewport inside the window
-	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	glViewport(0, 0, data.image_width, data.image_height);
 
 	Shader* ourShader = new Shader(vertexShaderSource, fragmentShaderSource);
 
@@ -115,8 +120,8 @@ void Renderer::Render(RayTracer* RT)
 		glfwTerminate();
 
 	// update Frame
-	if (RT->GenerateFrame(glfwGetTime()))
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, RT->getFrame());
+	if (RT->GenerateFrame())
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.image_width, data.image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, RT->getFrame());
 	else
 		std::cout << "Failed to load texture" << std::endl;
 
@@ -132,4 +137,9 @@ void Renderer::Render(RayTracer* RT)
 void Renderer::Terminate()
 {
 	glfwTerminate();
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
 }

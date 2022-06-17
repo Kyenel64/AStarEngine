@@ -12,7 +12,7 @@
 class Renderer
 {
 public:
-	Renderer(int SCR_WIDTH, int SCR_HEIGHT, std::string title, int GLVERSION_MAJOR, int GLVERSION_MINOR);
+	Renderer(Data& data, std::string title, int GLVERSION_MAJOR, int GLVERSION_MINOR);
 	~Renderer();
 
 	void Render(RayTracer* RT);
@@ -20,5 +20,5 @@ public:
 
 private:
 	GLFWwindow* window;
-	int width, height;
+	Data data;
 };

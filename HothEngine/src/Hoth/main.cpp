@@ -4,7 +4,7 @@ int main()
 {
 	Data data;
 
-	Renderer r(data.image_width, data.image_height, "Test Window", 4, 3);
+	Renderer r(data, "Test Window", 4, 3);
 
 	RayTracer* RT = new RayTracer(data);
 

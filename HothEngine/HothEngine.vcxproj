@@ -56,7 +56,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;HT_PLATFORM_WINDOWS;HT_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)RayTracer\src;$(SolutionDir)HothEngine\vendor;$(SolutionDir)Dependencies\include;$(SolutionDir)HothEngine\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RayTracer\src;$(SolutionDir)HothEngine\vendor;$(SolutionDir)Dependencies\include;$(SolutionDir)HothEngine\src\;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,9 +96,6 @@
     <ClCompile Include="vendor\glad.c" />
     <ClCompile Include="src\Hoth\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Hoth\Renderer\Shader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="src\Hoth\Renderer\container.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RayTracer\RayTracer.vcxproj">
