@@ -16,3 +16,13 @@ __device__ bool Hittable_list::hit(const Ray& r, float t_min, float t_max, hit_r
 
     return hit_anything;
 }
+
+__device__ void Hittable_list::setPosition(vec3& v)
+{
+    list[0]->setPosition(v);
+}
+
+__device__ vec3 Hittable_list::getPosition() const
+{
+    list[0]->getPosition();
+}

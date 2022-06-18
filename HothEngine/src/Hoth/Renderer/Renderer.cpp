@@ -34,8 +34,8 @@ const char* fragmentShaderSource =
 // declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-Renderer::Renderer(Data& data, std::string title, int GLVERSION_MAJOR, 
-	int GLVERSION_MINOR) : data(data)
+Renderer::Renderer(RayTracer* RT, Data& data, std::string title, int GLVERSION_MAJOR, 
+	int GLVERSION_MINOR) : RT(RT), data(data)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLVERSION_MAJOR);
@@ -114,13 +114,13 @@ Renderer::~Renderer()
 	
 }
 
-void Renderer::Render(RayTracer* RT, Data& data)
+void Renderer::Render()
 {
 	if (glfwWindowShouldClose(window))
 		glfwTerminate();
 
 	// update Frame
-	if (RT->GenerateFrame(data, glfwGetTime()))
+	if (RT->GenerateFrame())
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.image_width, data.image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, RT->getFrame());
 	else
 		std::cout << "Failed to load texture" << std::endl;
@@ -134,12 +134,22 @@ void Renderer::Render(RayTracer* RT, Data& data)
 	glfwPollEvents();
 }
 
-void Renderer::Terminate()
+void Renderer::processInput()
 {
-	glfwTerminate();
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		RT->test();
+	}
+
+	if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) &&
+		(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS))
+	{
+		RT->save();
+	}
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
+

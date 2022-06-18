@@ -12,13 +12,15 @@
 class Renderer
 {
 public:
-	Renderer(Data& data, std::string title, int GLVERSION_MAJOR, int GLVERSION_MINOR);
+	Renderer(RayTracer* RT, Data& data, std::string title, int GLVERSION_MAJOR, int GLVERSION_MINOR);
 	~Renderer();
 
-	void Render(RayTracer* RT, Data& data);
-	void Terminate();
+	void Render();
+
+	void processInput();
 
 private:
 	GLFWwindow* window;
-	Data data;
+	Data& data;
+	RayTracer* RT;
 };

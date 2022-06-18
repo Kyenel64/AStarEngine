@@ -12,12 +12,12 @@
 #endif
 
 __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color);
-__device__ color ray_color(const Ray& r, Hittable** world, float time);
-__global__ void render(unsigned char* frame, Data d, Hittable** world, float time);
-__global__ void create_world(Hittable** d_list, Hittable** d_world);
+__device__ color ray_color(const Ray& r, Hittable** world);
+__global__ void render(unsigned char* frame, Data d, Hittable** world);
+__global__ void create_world(Hittable** d_list, Hittable** d_world, Data data);
 __global__ void free_world(Hittable** d_list, Hittable** d_world);
 
-RayTracer::RayTracer(Data &data)
+RayTracer::RayTracer(Data &data) : data(data)
 {
 	int num_pixels = data.image_width * data.image_height;
 	frame_size = 3 * num_pixels * sizeof(float);
@@ -25,9 +25,9 @@ RayTracer::RayTracer(Data &data)
 	blockY = 8;
 
 	// -------------------- World -----------------------
-	cudaMalloc(&d_list, 2 * sizeof(Hittable *));
+	cudaMalloc(&d_list, data.objectCount * sizeof(Hittable *));
 	cudaMalloc(&d_world, sizeof(Hittable *));
-	create_world CUDA_KERNEL(1, 1)(d_list, d_world);
+	create_world CUDA_KERNEL(1, 1)(d_list, d_world, data);
 	cudaDeviceSynchronize();
 
 	// ------------------- Memory -----------------------
@@ -51,7 +51,7 @@ unsigned char* RayTracer::getFrame() const
 }
 
 // fills frame[] with render. Acts like main()
-bool RayTracer::GenerateFrame(Data& data, float time)
+bool RayTracer::GenerateFrame()
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -59,7 +59,7 @@ bool RayTracer::GenerateFrame(Data& data, float time)
 	dim3 blocks(data.image_width / blockX + 1, data.image_height / blockY + 1);
 	dim3 threads(blockX, blockY);
 
-	render CUDA_KERNEL(blocks, threads)(frame, data, d_world, time);
+	render CUDA_KERNEL(blocks, threads)(frame, data, d_world);
 	cudaDeviceSynchronize();
 
 
@@ -79,12 +79,12 @@ __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_c
 }
 
 // Return color of pixel
-__device__ color ray_color(const Ray& r, Hittable **world, float time)
+__device__ color ray_color(const Ray& r, Hittable **world)
 {
 	// temp hit record
 	hit_record rec;
 	if ((*world)->hit(r, 0, FLT_MAX, rec)) {
-		return time * (rec.normal + color(1, 1, 1));
+		return 0.5 * (rec.normal + color(1, 1, 1));
 	}
 
 	// background color
@@ -93,7 +93,7 @@ __device__ color ray_color(const Ray& r, Hittable **world, float time)
 	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
-__global__ void render(unsigned char* frame, Data d, Hittable **world, float time) {
+__global__ void render(unsigned char* frame, Data d, Hittable **world) {
 	// initialize variables and random state
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -105,18 +105,18 @@ __global__ void render(unsigned char* frame, Data d, Hittable **world, float tim
 	float v = float(j) / float(d.image_height - 1);
 
 	Ray r(d.origin, d.lower_left_corner + u * d.horizontal + v * d.vertical);
-	write_color(frame, pixel_index, ray_color(r, world, time));
+	write_color(frame, pixel_index, ray_color(r, world));
 }
 
 // Allocate world
-__global__ void create_world(Hittable** d_list, Hittable** d_world)
+__global__ void create_world(Hittable** d_list, Hittable** d_world, Data data)
 {
 	// Allocate new objects and world
 	if (threadIdx.x == 0 && blockIdx.x == 0)
 	{
-		*d_list = new Sphere(vec3(0, 0, -1), 0.5);
+		*d_list = new Sphere(data.spherePos1, 0.5);
 		*(d_list + 1) = new Sphere(vec3(0, -100.5, -1), 100);
-		*d_world = new Hittable_list(d_list, 2);
+		*d_world = new Hittable_list(d_list, data.objectCount);
 	}
 }
 
@@ -128,3 +128,24 @@ __global__ void free_world(Hittable** d_list, Hittable** d_world)
 	delete* d_world;
 }
 
+__global__ void testKernel(Hittable **world)
+{
+	(*world)->setPosition(vec3(1, 0, -1));
+}
+
+void RayTracer::test()
+{
+	testKernel CUDA_KERNEL(1, 1)(d_world);
+	cudaDeviceSynchronize();
+}
+
+__global__ void saveKernel(Hittable** world, Data data)
+{
+	data.spherePos1 = (*world)->getPosition();
+}
+
+void RayTracer::save()
+{
+	saveKernel CUDA_KERNEL(1, 1)(d_world, data);
+	cudaDeviceSynchronize();
+}

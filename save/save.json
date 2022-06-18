@@ -1,0 +1,16 @@
+{
+    "title": "Sandbox",
+    "aspect_ratio": 1.77777777778,
+    "image_width": 1920,
+    "image_height": 1080,
+    "viewport_height": 2.0,
+    "viewport_width": 3.55555555554,
+    "focal_length": 1.0,
+    "origin": [0, 0, 0],
+    "horizontal": [3.55555555553, 0, 0],
+    "vertical":[0, 2, 0],
+    "lower_left_corner": [-1.7777777779, -1, -1],
+    
+    "objectCount": 2,
+    "spherePos1": [0, 0,-1]
+}

@@ -27,3 +27,13 @@ __device__ bool Sphere::hit(const Ray& r, float t_min, float t_max, hit_record& 
 
     return true;
 }
+
+__device__ void Sphere::setPosition(vec3& v)
+{
+    center = v;
+}
+
+__device__ vec3 Sphere::getPosition() const
+{
+    return center;
+}

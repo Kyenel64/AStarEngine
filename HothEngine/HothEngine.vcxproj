@@ -90,6 +90,7 @@
     <ClInclude Include="src\Hoth\macros.h" />
     <ClInclude Include="src\Hoth\Renderer\Renderer.h" />
     <ClInclude Include="src\Hoth\Renderer\Shader.h" />
+    <ClInclude Include="vendor\json.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hoth\main.cpp" />

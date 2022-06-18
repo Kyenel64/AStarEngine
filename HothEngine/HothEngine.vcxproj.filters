@@ -24,6 +24,9 @@
     <ClInclude Include="src\Hoth\Renderer\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hoth\Renderer\Renderer.cpp">

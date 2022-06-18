@@ -8,9 +8,10 @@
 
 struct RT_API Data // serialize
 {
-	const float aspect_ratio = float(16.0 / 9.0);
-	int image_width = 1280;
-	int image_height = 700;
+	std::string title;
+	float aspect_ratio;
+	int image_width;
+	int image_height;
 
 	// Camera properties
 	float viewport_height = 2.0;
@@ -21,6 +22,8 @@ struct RT_API Data // serialize
 	vec3 vertical = vec3(0.0, viewport_height, 0.0);
 	point3 lower_left_corner = origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
 
+	int objectCount = 2;
+	vec3 spherePos1 = vec3(0, 0, -1);
 };
 
 
@@ -30,7 +33,10 @@ public:
 	RayTracer(Data &data);
 	~RayTracer();
 
-	bool GenerateFrame(Data& data, float time);
+	bool GenerateFrame();
+
+	void test();
+	void save();
 
 	unsigned char* getFrame() const;
 
@@ -38,7 +44,7 @@ private:
 	int blockX, blockY;		// block dimensions
 	unsigned char* frame;	// frame data
 	size_t frame_size;		// frame size
-	Data data;
+	Data& data;
 	Hittable **d_list;
 	Hittable **d_world;
 	
