@@ -12,7 +12,7 @@ public:
     __device__ virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
 
     __device__ virtual void setPosition(vec3& v) override;
-    __device__ virtual vec3 getPosition() const override;
+    __host__ __device__ virtual vec3 getPosition() const override;
 public:
     point3 center;
     float radius;

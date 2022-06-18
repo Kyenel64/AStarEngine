@@ -6,7 +6,7 @@
 #include "Classes/sphere.cuh"
 
 
-struct RT_API Data // serialize
+struct Data // serialize
 {
 	std::string title;
 	float aspect_ratio;
@@ -14,16 +14,16 @@ struct RT_API Data // serialize
 	int image_height;
 
 	// Camera properties
-	float viewport_height = 2.0;
-	float viewport_width = aspect_ratio * viewport_height;
-	float focal_length = 1.0;
-	point3 origin = point3(0, 0, 0);
-	vec3 horizontal = vec3(viewport_width, 0.0, 0.0);
-	vec3 vertical = vec3(0.0, viewport_height, 0.0);
-	point3 lower_left_corner = origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
+	float viewport_height;
+	float viewport_width;
+	float focal_length;
+	point3 origin;
+	vec3 horizontal;
+	vec3 vertical;
+	point3 lower_left_corner;
 
-	int objectCount = 2;
-	vec3 spherePos1 = vec3(0, 0, -1);
+	int objectCount;
+	vec3 spherePos1;
 };
 
 

@@ -23,5 +23,5 @@ public:
 
     __device__ virtual void setPosition(vec3& v) = 0;
 
-    __device__ virtual vec3 getPosition() const = 0;
+    __host__ __device__ virtual vec3 getPosition() const = 0;
 };

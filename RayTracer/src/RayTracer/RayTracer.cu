@@ -146,6 +146,5 @@ __global__ void saveKernel(Hittable** world, Data data)
 
 void RayTracer::save()
 {
-	saveKernel CUDA_KERNEL(1, 1)(d_world, data);
-	cudaDeviceSynchronize();
+	
 }
