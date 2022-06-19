@@ -5,13 +5,11 @@
 #include "Classes/hittable_list.cuh"
 #include "Classes/sphere.cuh"
 
-#include "thrust/device_vector.h"
-
 struct objectData
 {
-	int id;
-	vec3 Pos;
-	float radius;
+	int id = 0;
+	vec3 Pos = vec3(0, 0, -3);
+	float radius = 1;
 };
 
 struct Data
@@ -30,8 +28,9 @@ struct Data
 	vec3 vertical = vec3(0, viewport_height, 0);
 	point3 lower_left_corner = origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
 
-	int objectCount = 0;
-	objectData objData[1000];
+	int objectCount = 1;
+	objectData defaultSphere;
+	objectData objData[1000] = {defaultSphere};
 };
 
 
@@ -45,6 +44,7 @@ public:
 
 	void test();
 	void save();
+	void addObject(int id, vec3 Pos, float radius);
 	
 	Data* getData() const;
 

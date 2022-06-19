@@ -6,32 +6,41 @@
         0.0,
         0.0
     ],
-    "image_height": 720,
-    "image_width": 1280,
+    "image_height": 1080,
+    "image_width": 1920,
     "lower_left_corner": [
         -1.7777777910232544,
         -1.0,
         -1.0
     ],
-    "objectCount": 2,
+    "objectCount": 3,
     "objectData": [
         [
             0,
             [
-                1.0,
                 0.0,
-                -2.0
+                0.0,
+                -3.0
             ],
-            0.5
+            1.0
         ],
         [
             1,
             [
                 0.0,
-                -100.5,
-                -1.0
+                1.0,
+                -3.0
             ],
-            100.0
+            1.0
+        ],
+        [
+            2,
+            [
+                0.0,
+                1.0,
+                -3.0
+            ],
+            1.0
         ]
     ],
     "origin": [
@@ -39,7 +48,7 @@
         0.0,
         0.0
     ],
-    "title": "Sandbox",
+    "title": "untitled",
     "vertical": [
         0.0,
         2.0,

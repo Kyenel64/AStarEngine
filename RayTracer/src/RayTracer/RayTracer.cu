@@ -154,16 +154,40 @@ void RayTracer::test()
 
 __global__ void saveKernel(Hittable** world, Data* data)
 {
-	for (int i = 0; i < data->objectCount; i++)
+	if (threadIdx.x == 0 && blockIdx.x == 0)
 	{
-		data->objData[i].id = (*world)->getID(i);
-		data->objData[i].Pos = (*world)->getPosition(i);
-		data->objData[i].radius = (*world)->getRadius(i);
-	};
+		for (int i = 0; i < data->objectCount; i++)
+		{
+			data->objData[i].id = (*world)->getID(i);
+			data->objData[i].Pos = (*world)->getPosition(i);
+			data->objData[i].radius = (*world)->getRadius(i);
+		};
+	}
+	
 }
 
 void RayTracer::save()
 {
 	saveKernel CUDA_KERNEL(1, 1)(d_world, d_data);
+	cudaDeviceSynchronize();
 	cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost);
+}
+
+__global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Data* data, int id, vec3 Pos, float radius)
+{
+	if (threadIdx.x == 0 && blockIdx.x == 0)
+	{
+		delete* d_world;
+		*d_world = new Hittable_list(d_list, data->objectCount + 1);
+		d_list[id] = new Sphere(Pos, radius, id);
+		data->objectCount++;
+	}
+}
+
+void RayTracer::addObject(int id, vec3 Pos, float radius)
+{
+	cudaFree(d_list);
+	cudaMalloc(&d_list, data->objectCount+1 * sizeof(Hittable*));
+	addObjectKernel CUDA_KERNEL(1, 1)(d_list, d_world, d_data, id, Pos, radius);
+	cudaDeviceSynchronize();
 }

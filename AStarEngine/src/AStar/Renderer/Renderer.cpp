@@ -147,6 +147,11 @@ void Renderer::processInput()
 		RT->save();
 		serialize();
 	}
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		RT->addObject(data->objectCount, vec3(0, 1, -3), 1.0);
+	}
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -178,6 +183,6 @@ void Renderer::serialize()
 		j["objectData"][i][2] = data->objData[i].radius;
 	}
 
-	std::ofstream o("../save/save.hoth");
+	std::ofstream o("../save/save.astar");
 	o << std::setw(4) << j << std::endl;
 }

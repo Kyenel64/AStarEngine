@@ -10,7 +10,6 @@
 #include <ostream>
 #include "json.hpp"
 using namespace nlohmann;
-#include <string>
 
 class Renderer
 {
@@ -21,7 +20,6 @@ public:
 	void Render();
 
 	void serialize();
-
 	void processInput();
 
 private:

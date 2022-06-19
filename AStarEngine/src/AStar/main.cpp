@@ -1,24 +1,15 @@
 #include <AStar/Renderer/Renderer.h>
 #include "json.hpp"
-#include <fstream>
-#include <ostream>
-#include <vector>
 using namespace nlohmann;
 
-void deserialize(Data* data, json& j);
+bool deserialize(Data* data, std::string path);
 vec3 toVec3(std::vector<float> vec);
 
 int main()
 {
 	// load save file
-	std::ifstream saveFile("../save/save.hoth");
-	json j;
 	Data* data = new Data;
-	if (!saveFile.fail())
-	{
-		saveFile >> j;
-		deserialize(data, j);
-	}
+	deserialize(data, "../save/save.astar");
 
 	RayTracer* RT = new RayTracer(data);
 
@@ -30,11 +21,20 @@ int main()
 		r.Render();
 	}
 
+	delete data;
+	delete RT;
+
 	return 0;
 }
 
-void deserialize(Data* data, json& j)
+bool deserialize(Data* data, std::string path)
 {
+	std::ifstream saveFile(path);
+	json j;
+	if (saveFile.fail())
+		return false;
+	saveFile >> j;
+
 	data->title = j["title"];
 	data->aspect_ratio = j["aspect_ratio"];
 	data->image_width = j["image_width"];
@@ -55,6 +55,8 @@ void deserialize(Data* data, json& j)
 		data->objData[i].Pos = toVec3(j["objectData"][i][1]);
 		data->objData[i].radius = j["objectData"][i][2];
 	}
+
+	return true;
 }
 
 vec3 toVec3(std::vector<float> vec)
