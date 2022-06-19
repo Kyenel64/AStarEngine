@@ -1,4 +1,4 @@
-#include <Hoth/Renderer/Renderer.h>
+#include <AStar/Renderer/Renderer.h>
 #include "json.hpp"
 #include <fstream>
 #include <ostream>
@@ -13,9 +13,12 @@ int main()
 	// load save file
 	std::ifstream saveFile("../save/save.hoth");
 	json j;
-	saveFile >> j;
 	Data* data = new Data;
-	deserialize(data, j);
+	if (!saveFile.fail())
+	{
+		saveFile >> j;
+		deserialize(data, j);
+	}
 
 	RayTracer* RT = new RayTracer(data);
 

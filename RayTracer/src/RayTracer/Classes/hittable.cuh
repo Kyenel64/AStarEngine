@@ -21,7 +21,9 @@ class RT_API Hittable
 public:
     __device__ virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const = 0;
 
-    __device__ virtual void setPosition(vec3& v) = 0;
+    __device__ virtual void setPosition(vec3 v) = 0;
 
     __host__ __device__ virtual vec3 getPosition(int id) const = 0;
+    __host__ __device__ virtual float getRadius(int id) const = 0;
+    __host__ __device__ virtual int getID(int id) const = 0;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hoth/macros.h"
+#include "AStar/macros.h"
 #include "Shader.h"
 
 #include "RT.h"

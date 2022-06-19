@@ -143,8 +143,8 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\texture_types.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_functions.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_types.h
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\hittable.cuh
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\macros.cuh
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\ray.cuh
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\sphere.cuh
-C:\Users\japan\Desktop\HothEngine\RayTracer\src\RayTracer\Classes\vec3.cuh
+C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\hittable.cuh
+C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\macros.cuh
+C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\ray.cuh
+C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\sphere.cuh
+C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\vec3.cuh

@@ -28,7 +28,7 @@ __device__ bool Sphere::hit(const Ray& r, float t_min, float t_max, hit_record& 
     return true;
 }
 
-__device__ void Sphere::setPosition(vec3& v)
+__device__ void Sphere::setPosition(vec3 v)
 {
     center = v;
 }
@@ -36,4 +36,14 @@ __device__ void Sphere::setPosition(vec3& v)
 __host__ __device__ vec3 Sphere::getPosition(int id) const
 {
     return center;
+}
+
+__host__ __device__ float Sphere::getRadius(int id) const
+{
+    return radius;
+}
+
+__host__ __device__ int Sphere::getID(int id) const
+{
+    return ID;
 }

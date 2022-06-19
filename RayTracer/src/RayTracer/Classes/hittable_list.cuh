@@ -17,9 +17,11 @@ public:
 
     __device__ virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
 
-    __device__ virtual void setPosition(vec3& v) override;
+    __device__ virtual void setPosition(vec3 v) override;
 
-    __host__ __device__ virtual vec3 getPosition(int id) const;
+    __host__ __device__ vec3 getPosition(int id) const override;
+    __host__ __device__ float getRadius(int id) const override;
+    __host__ __device__ int getID(int id) const override;
 public:
     Hittable** list;
     int list_size;

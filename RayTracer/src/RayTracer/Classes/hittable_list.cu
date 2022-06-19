@@ -17,7 +17,7 @@ __device__ bool Hittable_list::hit(const Ray& r, float t_min, float t_max, hit_r
     return hit_anything;
 }
 
-__device__ void Hittable_list::setPosition(vec3& v)
+__device__ void Hittable_list::setPosition(vec3 v)
 {
     list[0]->setPosition(v);
 }
@@ -25,4 +25,14 @@ __device__ void Hittable_list::setPosition(vec3& v)
 __host__ __device__ vec3 Hittable_list::getPosition(int id) const
 {
     return list[id]->getPosition(id);
+}
+
+__host__ __device__ float Hittable_list::getRadius(int id) const
+{
+    return list[id]->getRadius(id);
+}
+
+__host__ __device__ int Hittable_list::getID(int id) const
+{
+    return list[id]->getID(id);
 }

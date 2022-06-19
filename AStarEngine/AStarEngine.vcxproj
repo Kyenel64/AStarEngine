@@ -14,7 +14,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{e951b34a-2775-499f-b166-04c6aa89c75b}</ProjectGuid>
-    <RootNamespace>HothEngine</RootNamespace>
+    <RootNamespace>AStarEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -56,7 +56,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;HT_PLATFORM_WINDOWS;HT_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)RayTracer\src;$(SolutionDir)HothEngine\vendor;$(SolutionDir)Dependencies\include;$(SolutionDir)HothEngine\src\;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RayTracer\src;$(SolutionDir)AStarEngine\vendor;$(SolutionDir)Dependencies\include;$(SolutionDir)AStarEngine\src\;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -87,16 +87,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Hoth\macros.h" />
-    <ClInclude Include="src\Hoth\Renderer\Renderer.h" />
-    <ClInclude Include="src\Hoth\Renderer\Shader.h" />
+    <ClInclude Include="src\AStar\macros.h" />
+    <ClInclude Include="src\AStar\Renderer\Renderer.h" />
+    <ClInclude Include="src\AStar\Renderer\Shader.h" />
     <ClInclude Include="vendor\json.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Hoth\main.cpp" />
+    <ClCompile Include="src\AStar\main.cpp" />
     <ClCompile Include="vendor\glad.c" />
-    <ClCompile Include="src\Hoth\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Hoth\Renderer\Shader.cpp" />
+    <ClCompile Include="src\AStar\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\AStar\Renderer\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RayTracer\RayTracer.vcxproj">

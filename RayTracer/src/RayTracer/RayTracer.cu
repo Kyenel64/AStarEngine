@@ -156,9 +156,10 @@ __global__ void saveKernel(Hittable** world, Data* data)
 {
 	for (int i = 0; i < data->objectCount; i++)
 	{
+		data->objData[i].id = (*world)->getID(i);
 		data->objData[i].Pos = (*world)->getPosition(i);
-	}
-	//data->objData[0].radius = (*world)->getRadius(0);
+		data->objData[i].radius = (*world)->getRadius(i);
+	};
 }
 
 void RayTracer::save()
