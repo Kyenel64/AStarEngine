@@ -33,7 +33,7 @@ __device__ void Sphere::setPosition(vec3& v)
     center = v;
 }
 
-__host__ __device__ vec3 Sphere::getPosition() const
+__host__ __device__ vec3 Sphere::getPosition(int id) const
 {
     return center;
 }

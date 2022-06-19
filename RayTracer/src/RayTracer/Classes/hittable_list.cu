@@ -22,7 +22,7 @@ __device__ void Hittable_list::setPosition(vec3& v)
     list[0]->setPosition(v);
 }
 
-__host__ __device__ vec3 Hittable_list::getPosition() const
+__host__ __device__ vec3 Hittable_list::getPosition(int id) const
 {
-    return list[0]->getPosition();
+    return list[id]->getPosition(id);
 }

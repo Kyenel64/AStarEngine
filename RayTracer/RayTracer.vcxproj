@@ -44,6 +44,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <IncludePath>$(SolutionDir)RayTracer\vendor\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -60,8 +61,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Defines>RT_BUILD_DLL;</Defines>
-      <Include>
-      </Include>
+      <Include>%(Include)</Include>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
     <PostBuildEvent>
@@ -102,6 +102,7 @@
     <ClInclude Include="src\RayTracer\Classes\macros.cuh" />
     <ClInclude Include="src\RayTracer\RayTracer.cuh" />
     <ClInclude Include="src\RT.h" />
+    <ClInclude Include="vendor\json.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

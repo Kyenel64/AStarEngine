@@ -34,7 +34,7 @@ const char* fragmentShaderSource =
 // declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-Renderer::Renderer(RayTracer* RT, Data& data, std::string title, int GLVERSION_MAJOR, 
+Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_MAJOR, 
 	int GLVERSION_MINOR) : RT(RT), data(data)
 {
 	glfwInit();
@@ -43,7 +43,7 @@ Renderer::Renderer(RayTracer* RT, Data& data, std::string title, int GLVERSION_M
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE); // Maximized window
 
-	window = glfwCreateWindow(data.image_width, data.image_height, title.c_str(), NULL, NULL);
+	window = glfwCreateWindow(data->image_width, data->image_height, title.c_str(), NULL, NULL);
 
 	if (window == NULL)
 	{
@@ -61,7 +61,7 @@ Renderer::Renderer(RayTracer* RT, Data& data, std::string title, int GLVERSION_M
 	}
 
 	// Set viewport inside the window
-	glViewport(0, 0, data.image_width, data.image_height);
+	glViewport(0, 0, data->image_width, data->image_height);
 
 	Shader* ourShader = new Shader(vertexShaderSource, fragmentShaderSource);
 
@@ -121,7 +121,7 @@ void Renderer::Render()
 
 	// update Frame
 	if (RT->GenerateFrame())
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.image_width, data.image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, RT->getFrame());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data->image_width, data->image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, RT->getFrame());
 	else
 		std::cout << "Failed to load texture" << std::endl;
 
@@ -145,6 +145,7 @@ void Renderer::processInput()
 		(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS))
 	{
 		RT->save();
+		serialize();
 	}
 }
 
@@ -153,3 +154,30 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void Renderer::serialize()
+{
+	json j;
+	data = RT->getData();
+	j["title"] = data->title;
+	j["aspect_ratio"] = data->aspect_ratio;
+	j["image_width"] = data->image_width;
+	j["image_height"] = data->image_height;
+	j["viewport_height"] = data->viewport_height;
+	j["viewport_width"] = data->viewport_width;
+	j["focal_length"] = data->focal_length;
+	j["origin"] = { data->origin.x(), data->origin.y(), data->origin.z() };
+	j["horizontal"] = { data->horizontal.x(), data->horizontal.y(), data->horizontal.z() };
+	j["vertical"] = { data->vertical.x(), data->vertical.y(), data->vertical.z() };
+	j["lower_left_corner"] = { data->lower_left_corner.x(), data->lower_left_corner.y(), data->lower_left_corner.z() };
+	j["objectCount"] = data->objectCount;
+
+	for (int i = 0; i < data->objectCount; i++)
+	{
+		j["objectData"][i][0] = data->objData[i].id;
+		j["objectData"][i][1] = {data->objData[i].Pos.x(), data->objData[i].Pos.y(), data->objData[i].Pos.z()};
+		j["objectData"][i][2] = data->objData[i].radius;
+	}
+
+	std::ofstream o("../save/save.hoth");
+	o << std::setw(4) << j << std::endl;
+}

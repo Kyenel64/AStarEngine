@@ -19,7 +19,7 @@ public:
 
     __device__ virtual void setPosition(vec3& v) override;
 
-    __host__ __device__ virtual vec3 getPosition() const override;
+    __host__ __device__ virtual vec3 getPosition(int id) const;
 public:
     Hittable** list;
     int list_size;
