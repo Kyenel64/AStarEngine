@@ -1,0 +1,52 @@
+{
+    "aspect_ratio": 1.7777777910232544,
+    "focal_length": 1.0,
+    "horizontal": [
+        3.555555582046509,
+        0.0,
+        0.0
+    ],
+    "image_height": 1080,
+    "image_width": 1920,
+    "lower_left_corner": [
+        -1.7777777910232544,
+        -1.0,
+        -1.0
+    ],
+    "max_depth": 5,
+    "objectCount": 2,
+    "objectData": [
+        [
+            0,
+            [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            0.5
+        ],
+        [
+            1,
+            [
+                0.0,
+                -100.5,
+                -1
+            ],
+            100
+        ]
+    ],
+    "origin": [
+        0.0,
+        0.0,
+        0.0
+    ],
+    "samples_per_pixel": 5,
+    "title": "untitled",
+    "vertical": [
+        0.0,
+        2.0,
+        0.0
+    ],
+    "viewport_height": 2.0,
+    "viewport_width": 3.555555582046509
+}

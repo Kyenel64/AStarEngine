@@ -171,6 +171,7 @@ void Renderer::serialize()
 	j["image_height"] = data->image_height;
 
 	j["samples_per_pixel"] = data->samples_per_pixel;
+	j["max_depth"] = data->max_depth;
 
 	j["viewport_height"] = data->viewport_height;
 	j["viewport_width"] = data->viewport_width;

@@ -41,6 +41,7 @@ bool deserialize(Data* data, std::string path)
 	data->image_height = j["image_height"];
 
 	data->samples_per_pixel = j["samples_per_pixel"];
+	data->max_depth = j["max_depth"];
 
 	data->viewport_height = j["viewport_height"];
 	data->viewport_width = j["viewport_width"];

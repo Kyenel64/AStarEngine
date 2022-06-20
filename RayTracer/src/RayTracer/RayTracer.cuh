@@ -4,13 +4,15 @@
 #include "Classes/misc.cuh"
 #include "Classes/hittable_list.cuh"
 #include "Classes/sphere.cuh"
+#include "Classes/camera.cuh"
+#include "Classes/material.cuh"
 #include <curand_kernel.h>
 
 struct objectData
 {
 	int id = 0;
-	vec3 Pos = vec3(0, 0, -3);
-	float radius = 1;
+	vec3 Pos = vec3(0, 0, -1);
+	float radius = 0.5;
 };
 
 struct Data
@@ -23,6 +25,7 @@ struct Data
 
 	// Rendering properties
 	int samples_per_pixel = 5;
+	int max_depth = 10;
 
 	// Camera properties
 	float viewport_height = 2.0;
@@ -56,13 +59,14 @@ public:
 	unsigned char* getFrame() const;
 
 private:
-	int blockX, blockY;		// block dimensions
-	unsigned char* frame;	// frame data
-	size_t frame_size;		// frame size
-	Data* data;
-	Data* d_data;
-	Hittable **d_list;
-	Hittable **d_world;
-	curandState* d_rand_state;
+	int blockX, blockY;			// block dimensions
+	unsigned char* frame;		// frame data
+	size_t frame_size;			// frame size
+	Data* data;					// host data
+	Data* d_data;				// device data
+	Hittable **d_list;			// list of objects
+	Hittable **d_world;			// pointer to scene
+	curandState* d_rand_state;  // device random variable
+	Camera** d_camera;			// camera 
 	
 };

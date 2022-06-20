@@ -3,11 +3,14 @@
 #include "ray.cuh"
 #include "macros.cuh"
 
+class Material;
+
 struct RT_API hit_record
 {
     point3 p; // 3D point of hit
     vec3 normal; // normal
     float t; // t value in ray equation
+    Material* mat_ptr;
     bool front_face;
 
     __device__ inline void set_face_normal(const Ray& r, const vec3& outward_normal) {

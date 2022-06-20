@@ -24,6 +24,7 @@ __device__ bool Sphere::hit(const Ray& r, float t_min, float t_max, hit_record& 
     rec.p = r.at(rec.t);
     vec3 outward_normal = (rec.p - center) / radius;
     rec.set_face_normal(r, outward_normal);
+    rec.mat_ptr = mat_ptr;
 
     return true;
 }

@@ -12,10 +12,10 @@
 #endif
 
 __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color, int samples_per_pixel);
-__device__ color ray_color(const Ray& r, Hittable** world);
-__global__ void render(unsigned char* frame, Data* data, Hittable** world, curandState *rand_state);
-__global__ void create_world(Hittable** d_list, Hittable** d_world, Data* data);
-__global__ void free_world(Hittable** d_list, Hittable** d_world, Data* data);
+__device__ color ray_color(const Ray& r, Hittable** world, curandState *local_rand_state, Data* data);
+__global__ void render(unsigned char* frame, Data* data, Hittable** world, Camera** camera, curandState *rand_state);
+__global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data);
+__global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data);
 __global__ void render_init(int max_x, int max_y, curandState* rand_state);
 
 RayTracer::RayTracer(Data* data) : data(data)
@@ -30,6 +30,7 @@ RayTracer::RayTracer(Data* data) : data(data)
 	cudaMalloc(&d_world, sizeof(Hittable *));
 	cudaMalloc(&d_data, sizeof(Data));
 	cudaMemcpy(d_data, data, sizeof(Data), cudaMemcpyHostToDevice);
+	cudaMalloc(&d_camera, sizeof(Camera));
 
 	cudaMallocManaged(&frame, frame_size);
 	cudaMallocManaged(&d_rand_state, num_pixels * sizeof(curandState));
@@ -37,7 +38,7 @@ RayTracer::RayTracer(Data* data) : data(data)
 	dim3 threads(blockX, blockY);
 
 	// ------------------- Kernel calls ---------------------
-	create_world CUDA_KERNEL(1, 1)(d_list, d_world, d_data);
+	create_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_data);
 	cudaDeviceSynchronize();
 	render_init CUDA_KERNEL(blocks, threads)(data->image_width, data->image_height, d_rand_state);
 	cudaDeviceSynchronize();
@@ -46,15 +47,16 @@ RayTracer::RayTracer(Data* data) : data(data)
 
 RayTracer::~RayTracer()
 {
-	free_world CUDA_KERNEL(1, 1)(d_list, d_world, d_data);
+	free_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_data);
 	cudaFree(frame);
 	cudaFree(d_list);
 	cudaFree(d_world);
 	cudaFree(d_data);
+	cudaFree(d_camera);
 	
 }
 
-// Returns frame to render to texture
+// Returns final rendered frame
 unsigned char* RayTracer::getFrame() const
 {
 	return frame;
@@ -74,7 +76,7 @@ bool RayTracer::GenerateFrame()
 	dim3 blocks(data->image_width / blockX + 1, data->image_height / blockY + 1);
 	dim3 threads(blockX, blockY);
 
-	render CUDA_KERNEL(blocks, threads)(frame, d_data, d_world, d_rand_state);
+	render CUDA_KERNEL(blocks, threads)(frame, d_data, d_world, d_camera, d_rand_state);
 	cudaDeviceSynchronize();
 
 
@@ -104,21 +106,39 @@ __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_c
 }
 
 // Return color of pixel
-__device__ color ray_color(const Ray& r, Hittable **world)
+__device__ color ray_color(const Ray& r, Hittable **world, curandState *local_rand_state, Data* data)
 {
-	// temp hit record
-	hit_record rec;
-	if ((*world)->hit(r, 0, FLT_MAX, rec)) {
-		return 0.5 * (rec.normal + color(1, 1, 1));
+	Ray cur_ray = r;
+	vec3 cur_attenuation = vec3(1, 1, 1);
+	for (int i = 0; i < data->max_depth; i++)
+	{
+		hit_record rec;
+		if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec))
+		{
+			Ray scattered;
+			vec3 atteuation;
+			if (rec.mat_ptr->scatter(cur_ray, rec, atteuation, scattered, local_rand_state))
+			{
+				cur_attenuation *= atteuation;
+				cur_ray = scattered;
+			}
+			else
+			{
+				return vec3(0, 0, 0);
+			}
+		}
+		else
+		{
+			vec3 unit_direction = unit_vector(cur_ray.direction());
+			float t = 0.5f * (unit_direction.y() + 1.0f);
+			vec3 c = (1.0f - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0);
+			return cur_attenuation * c;
+		}
 	}
-
-	// background color
-	vec3 unit_direction = unit_vector(r.direction());
-	auto t = 0.5 * (unit_direction.y() + 1.0);
-	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+	return vec3(0.0, 0.0, 0.0); // exceeded recursion
 }
 
-__global__ void render(unsigned char* frame, Data* data, Hittable **world, curandState *rand_state) {
+__global__ void render(unsigned char* frame, Data* data, Hittable **world, Camera **camera, curandState *rand_state) {
 	// Initializations
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -133,8 +153,8 @@ __global__ void render(unsigned char* frame, Data* data, Hittable **world, curan
 	{
 		float u = float(i + curand_uniform(&local_rand_state)) / float(data->image_width - 1);
 		float v = float(j + curand_uniform(&local_rand_state)) / float(data->image_height - 1);
-		Ray r(data->origin, data->lower_left_corner + u * data->horizontal + v * data->vertical);
-		pixel_color += ray_color(r, world);
+		Ray r = (*camera)->get_ray(u, v);
+		pixel_color += ray_color(r, world, &local_rand_state, data);
 	}
 	write_color(frame, pixel_index, pixel_color, data->samples_per_pixel);
 }
@@ -153,27 +173,30 @@ __global__ void render_init(int max_x, int max_y, curandState* rand_state)
 }
 
 // Allocate world
-__global__ void create_world(Hittable** d_list, Hittable** d_world, Data* data)
+__global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data)
 {
 	// Allocate new objects and world
 	if (threadIdx.x == 0 && blockIdx.x == 0)
 	{
 		for (int i = 0; i < data->objectCount; i++)
 		{
-			d_list[i] = new Sphere(data->objData[i].Pos, data->objData[i].radius, data->objData[i].id);
+			d_list[i] = new Sphere(data->objData[i].Pos, data->objData[i].radius, data->objData[i].id, new lambertian(vec3(0.8, 0.3, 0.3)));
 		}
 		*d_world = new Hittable_list(d_list, data->objectCount);
+		*d_camera = new Camera();
 	}
 }
 
 // Deallocate world
-__global__ void free_world(Hittable** d_list, Hittable** d_world, Data* data)
+__global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data)
 {
 	for (int i = 0; i < data->objectCount; i++)
 	{
 		delete d_list[i];
 	}
+	delete ((Sphere*)d_list[0])->mat_ptr;
 	delete* d_world;
+	delete* d_camera;
 }
 
 __global__ void testKernel(Hittable **world)
@@ -214,7 +237,7 @@ __global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Data* dat
 	{
 		delete* d_world;
 		*d_world = new Hittable_list(d_list, data->objectCount + 1);
-		d_list[id] = new Sphere(Pos, radius, id);
+		d_list[id] = new Sphere(Pos, radius, id, new lambertian(vec3(0.8, 0.3, 0.3)));
 		data->objectCount++;
 	}
 }

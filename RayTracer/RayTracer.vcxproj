@@ -93,8 +93,10 @@
     <CudaCompile Include="src\RayTracer\RayTracer.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\RayTracer\Classes\camera.cuh" />
     <ClInclude Include="src\RayTracer\Classes\hittable.cuh" />
     <ClInclude Include="src\RayTracer\Classes\hittable_list.cuh" />
+    <ClInclude Include="src\RayTracer\Classes\material.cuh" />
     <ClInclude Include="src\RayTracer\Classes\misc.cuh" />
     <ClInclude Include="src\RayTracer\Classes\ray.cuh" />
     <ClInclude Include="src\RayTracer\Classes\sphere.cuh" />
