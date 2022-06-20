@@ -4,6 +4,7 @@
 #include "Classes/misc.cuh"
 #include "Classes/hittable_list.cuh"
 #include "Classes/sphere.cuh"
+#include <curand_kernel.h>
 
 struct objectData
 {
@@ -14,10 +15,14 @@ struct objectData
 
 struct Data
 {
+	// Image properties
 	std::string title = "untitled";
 	float aspect_ratio = float(16.0 / 9.0);
 	int image_width = 1920;
 	int image_height = 1080;
+
+	// Rendering properties
+	int samples_per_pixel = 5;
 
 	// Camera properties
 	float viewport_height = 2.0;
@@ -58,5 +63,6 @@ private:
 	Data* d_data;
 	Hittable **d_list;
 	Hittable **d_world;
+	curandState* d_rand_state;
 	
 };

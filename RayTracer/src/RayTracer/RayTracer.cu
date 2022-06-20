@@ -11,11 +11,12 @@
 #define CUDA_KERNEL(...) <<< __VA_ARGS__ >>>
 #endif
 
-__device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color);
+__device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color, int samples_per_pixel);
 __device__ color ray_color(const Ray& r, Hittable** world);
-__global__ void render(unsigned char* frame, Data* data, Hittable** world);
+__global__ void render(unsigned char* frame, Data* data, Hittable** world, curandState *rand_state);
 __global__ void create_world(Hittable** d_list, Hittable** d_world, Data* data);
 __global__ void free_world(Hittable** d_list, Hittable** d_world, Data* data);
+__global__ void render_init(int max_x, int max_y, curandState* rand_state);
 
 RayTracer::RayTracer(Data* data) : data(data)
 {
@@ -24,16 +25,22 @@ RayTracer::RayTracer(Data* data) : data(data)
 	blockX = 8;
 	blockY = 8;
 
-	// -------------------- World -----------------------
+	// ------------------ Allocations -----------------------
 	cudaMalloc(&d_list, data->objectCount * sizeof(Hittable *));
 	cudaMalloc(&d_world, sizeof(Hittable *));
 	cudaMalloc(&d_data, sizeof(Data));
 	cudaMemcpy(d_data, data, sizeof(Data), cudaMemcpyHostToDevice);
+
+	cudaMallocManaged(&frame, frame_size);
+	cudaMallocManaged(&d_rand_state, num_pixels * sizeof(curandState));
+	dim3 blocks(data->image_width / blockX + 1, data->image_height / blockY + 1);
+	dim3 threads(blockX, blockY);
+
+	// ------------------- Kernel calls ---------------------
 	create_world CUDA_KERNEL(1, 1)(d_list, d_world, d_data);
 	cudaDeviceSynchronize();
-
-	// ------------------- Memory -----------------------
-	cudaMallocManaged(&frame, frame_size);
+	render_init CUDA_KERNEL(blocks, threads)(data->image_width, data->image_height, d_rand_state);
+	cudaDeviceSynchronize();
 
 }
 
@@ -67,8 +74,7 @@ bool RayTracer::GenerateFrame()
 	dim3 blocks(data->image_width / blockX + 1, data->image_height / blockY + 1);
 	dim3 threads(blockX, blockY);
 
-
-	render CUDA_KERNEL(blocks, threads)(frame, d_data, d_world);
+	render CUDA_KERNEL(blocks, threads)(frame, d_data, d_world, d_rand_state);
 	cudaDeviceSynchronize();
 
 
@@ -80,11 +86,21 @@ bool RayTracer::GenerateFrame()
 }
 
 // Write color to array
-__device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color)
+__device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color, int samples_per_pixel)
 {
-	frame[pixel_index + 0] = int(255.99 * (pixel_color.r()));
-	frame[pixel_index + 1] = int(255.99 * (pixel_color.g()));
-	frame[pixel_index + 2] = int(255.99 * (pixel_color.b()));
+	float r = pixel_color.r();
+	float g = pixel_color.g();
+	float b = pixel_color.b();
+
+	// Divide color by number of samples. Gamma correct.
+	float scale = 1.0 / samples_per_pixel;
+	r = sqrtf(scale * r);
+	g = sqrtf(scale * g);
+	b = sqrtf(scale * b);
+
+	frame[pixel_index + 0] = int(256 * clamp(r, 0.0, 0.999));
+	frame[pixel_index + 1] = int(256 * clamp(g, 0.0, 0.999));
+	frame[pixel_index + 2] = int(256 * clamp(b, 0.0, 0.999));
 }
 
 // Return color of pixel
@@ -102,19 +118,38 @@ __device__ color ray_color(const Ray& r, Hittable **world)
 	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
-__global__ void render(unsigned char* frame, Data* data, Hittable **world) {
-	// initialize variables and random state
+__global__ void render(unsigned char* frame, Data* data, Hittable **world, curandState *rand_state) {
+	// Initializations
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
 	if ((i >= data->image_width) || (j >= data->image_height))
 		return;
 	int pixel_index = j * data->image_width * 3 + i * 3;
+	int rand_index = j * data->image_width + i;
+	curandState local_rand_state = rand_state[rand_index];
 
-	float u = float(i) / float(data->image_width - 1);
-	float v = float(j) / float(data->image_height - 1);
+	color pixel_color;
+	for (int s = 0; s < data->samples_per_pixel; s++)
+	{
+		float u = float(i + curand_uniform(&local_rand_state)) / float(data->image_width - 1);
+		float v = float(j + curand_uniform(&local_rand_state)) / float(data->image_height - 1);
+		Ray r(data->origin, data->lower_left_corner + u * data->horizontal + v * data->vertical);
+		pixel_color += ray_color(r, world);
+	}
+	write_color(frame, pixel_index, pixel_color, data->samples_per_pixel);
+}
 
-	Ray r(data->origin, data->lower_left_corner + u * data->horizontal + v * data->vertical);
-	write_color(frame, pixel_index, ray_color(r, world));
+__global__ void render_init(int max_x, int max_y, curandState* rand_state)
+{
+	// x index and y index
+	int i = threadIdx.x + blockIdx.x * blockDim.x;
+	int j = threadIdx.y + blockIdx.y * blockDim.y;
+	if ((i >= max_x) || (j >= max_y))
+		return;
+	int pixel_index = j * max_x + i;
+
+	// Retrieve a random value for each thread
+	curand_init(1984, pixel_index, 0, &rand_state[pixel_index]);
 }
 
 // Allocate world

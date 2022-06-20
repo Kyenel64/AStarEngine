@@ -105,7 +105,9 @@ Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_M
 	unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 
 }
 
@@ -167,6 +169,9 @@ void Renderer::serialize()
 	j["aspect_ratio"] = data->aspect_ratio;
 	j["image_width"] = data->image_width;
 	j["image_height"] = data->image_height;
+
+	j["samples_per_pixel"] = data->samples_per_pixel;
+
 	j["viewport_height"] = data->viewport_height;
 	j["viewport_width"] = data->viewport_width;
 	j["focal_length"] = data->focal_length;

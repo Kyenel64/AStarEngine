@@ -39,6 +39,9 @@ bool deserialize(Data* data, std::string path)
 	data->aspect_ratio = j["aspect_ratio"];
 	data->image_width = j["image_width"];
 	data->image_height = j["image_height"];
+
+	data->samples_per_pixel = j["samples_per_pixel"];
+
 	data->viewport_height = j["viewport_height"];
 	data->viewport_width = j["viewport_width"];
 	data->focal_length = j["focal_length"];
