@@ -152,7 +152,7 @@ void Renderer::processInput()
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		RT->addObject(data->objectCount, vec3(0, 1, -3), 1.0);
+		//RT->addObject(data->objectCount, vec3(0, 1, -3), 1.0);
 	}
 }
 
@@ -180,13 +180,22 @@ void Renderer::serialize()
 	j["horizontal"] = { data->horizontal.x(), data->horizontal.y(), data->horizontal.z() };
 	j["vertical"] = { data->vertical.x(), data->vertical.y(), data->vertical.z() };
 	j["lower_left_corner"] = { data->lower_left_corner.x(), data->lower_left_corner.y(), data->lower_left_corner.z() };
-	j["objectCount"] = data->objectCount;
 
+	j["objectCount"] = data->objectCount;
 	for (int i = 0; i < data->objectCount; i++)
 	{
 		j["objectData"][i][0] = data->objData[i].id;
-		j["objectData"][i][1] = {data->objData[i].Pos.x(), data->objData[i].Pos.y(), data->objData[i].Pos.z()};
+		j["objectData"][i][1] = { data->objData[i].Pos.x(), data->objData[i].Pos.y(), data->objData[i].Pos.z() };
 		j["objectData"][i][2] = data->objData[i].radius;
+		j["objectData"][i][3] = data->objData[i].matID;
+	}
+
+	j["materialCount"] = data->materialCount;
+	for (int i = 0; i < data->materialCount; i++)
+	{
+		j["materialData"][i][0] = data->matData[i].id;
+		j["materialData"][i][1] = { data->matData[i].Col.x(), data->matData[i].Col.y(), data->matData[i].Col.z() };
+		j["materialData"][i][2] = data->matData[i].matType;
 	}
 
 	std::ofstream o("../save/save.astar");

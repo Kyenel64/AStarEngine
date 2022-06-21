@@ -1,4 +1,5 @@
 #include "sphere.cuh"
+#include "data.cuh"
 
 __device__ bool Sphere::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const
 {
@@ -47,4 +48,9 @@ __host__ __device__ float Sphere::getRadius(int id) const
 __host__ __device__ int Sphere::getID(int id) const
 {
     return ID;
+}
+
+__host__ __device__ int Sphere::getMatID(int id) const
+{
+    return matID;
 }

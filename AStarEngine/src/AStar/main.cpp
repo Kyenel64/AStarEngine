@@ -52,12 +52,20 @@ bool deserialize(Data* data, std::string path)
 	data->lower_left_corner = toVec3(j["lower_left_corner"]);
 	
 	data->objectCount = j["objectCount"];
-	
 	for (int i = 0; i < data->objectCount; i++)
 	{
 		data->objData[i].id = j["objectData"][i][0];
 		data->objData[i].Pos = toVec3(j["objectData"][i][1]);
 		data->objData[i].radius = j["objectData"][i][2];
+		data->objData[i].matID = j["objectData"][i][3];
+	}
+
+	data->materialCount = j["materialCount"];
+	for (int i = 0; i < data->materialCount; i++)
+	{
+		data->matData[i].id = j["materialData"][i][0];
+		data->matData[i].Col = toVec3(j["materialData"][i][1]);
+		data->matData[i].matType = j["materialData"][i][2];
 	}
 
 	return true;

@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\RayTracer\Classes\camera.cuh" />
+    <ClInclude Include="src\RayTracer\Classes\data.cuh" />
     <ClInclude Include="src\RayTracer\Classes\hittable.cuh" />
     <ClInclude Include="src\RayTracer\Classes\hittable_list.cuh" />
     <ClInclude Include="src\RayTracer\Classes\material.cuh" />

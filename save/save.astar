@@ -13,8 +13,20 @@
         -1.0,
         -1.0
     ],
+    "materialCount": 1,
+    "materialData": [
+        [
+            0,
+            [
+                0.5,
+                0.5,
+                0.5
+            ],
+            0
+        ]
+    ],
     "max_depth": 5,
-    "objectCount": 2,
+    "objectCount": 1,
     "objectData": [
         [
             0,
@@ -23,16 +35,8 @@
                 0.0,
                 -1.0
             ],
-            0.5
-        ],
-        [
-            1,
-            [
-                0.0,
-                -100.5,
-                -1
-            ],
-            100
+            0.5,
+            0
         ]
     ],
     "origin": [
@@ -40,7 +44,7 @@
         0.0,
         0.0
     ],
-    "samples_per_pixel": 5,
+    "samples_per_pixel": 1,
     "title": "untitled",
     "vertical": [
         0.0,

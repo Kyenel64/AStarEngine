@@ -29,4 +29,5 @@ public:
     __host__ __device__ virtual vec3 getPosition(int id) const = 0;
     __host__ __device__ virtual float getRadius(int id) const = 0;
     __host__ __device__ virtual int getID(int id) const = 0;
+    __host__ __device__ virtual int getMatID(int id) const = 0;
 };

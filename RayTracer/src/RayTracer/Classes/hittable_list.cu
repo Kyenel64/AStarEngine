@@ -36,3 +36,8 @@ __host__ __device__ int Hittable_list::getID(int id) const
 {
     return list[id]->getID(id);
 }
+
+__host__ __device__ int Hittable_list::getMatID(int id) const
+{
+    return list[id]->getMatID(id);
+}

@@ -164,6 +164,7 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_function
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_functions.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include\vector_types.h
 C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\camera.cuh
+C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\data.cuh
 C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\hittable.cuh
 C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\hittable_list.cuh
 C:\Users\japan\Desktop\AStarEngine\RayTracer\src\RayTracer\Classes\macros.cuh

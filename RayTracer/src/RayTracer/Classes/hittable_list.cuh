@@ -22,6 +22,7 @@ public:
     __host__ __device__ vec3 getPosition(int id) const override;
     __host__ __device__ float getRadius(int id) const override;
     __host__ __device__ int getID(int id) const override;
+    __host__ __device__ int getMatID(int id) const override;
 public:
     Hittable** list;
     int list_size;

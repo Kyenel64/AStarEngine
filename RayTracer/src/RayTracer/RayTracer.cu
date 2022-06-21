@@ -14,8 +14,8 @@
 __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color, int samples_per_pixel);
 __device__ color ray_color(const Ray& r, Hittable** world, curandState *local_rand_state, Data* data);
 __global__ void render(unsigned char* frame, Data* data, Hittable** world, Camera** camera, curandState *rand_state);
-__global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data);
-__global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data);
+__global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Material** d_matList, Data* data);
+__global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Material** d_matList, Data* data);
 __global__ void render_init(int max_x, int max_y, curandState* rand_state);
 
 RayTracer::RayTracer(Data* data) : data(data)
@@ -31,6 +31,7 @@ RayTracer::RayTracer(Data* data) : data(data)
 	cudaMalloc(&d_data, sizeof(Data));
 	cudaMemcpy(d_data, data, sizeof(Data), cudaMemcpyHostToDevice);
 	cudaMalloc(&d_camera, sizeof(Camera));
+	cudaMalloc(&d_matList, data->materialCount * sizeof(Material *));
 
 	cudaMallocManaged(&frame, frame_size);
 	cudaMallocManaged(&d_rand_state, num_pixels * sizeof(curandState));
@@ -38,7 +39,7 @@ RayTracer::RayTracer(Data* data) : data(data)
 	dim3 threads(blockX, blockY);
 
 	// ------------------- Kernel calls ---------------------
-	create_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_data);
+	create_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_matList, d_data);
 	cudaDeviceSynchronize();
 	render_init CUDA_KERNEL(blocks, threads)(data->image_width, data->image_height, d_rand_state);
 	cudaDeviceSynchronize();
@@ -47,12 +48,13 @@ RayTracer::RayTracer(Data* data) : data(data)
 
 RayTracer::~RayTracer()
 {
-	free_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_data);
+	free_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_matList, d_data);
 	cudaFree(frame);
 	cudaFree(d_list);
 	cudaFree(d_world);
 	cudaFree(d_data);
 	cudaFree(d_camera);
+	cudaFree(d_matList);
 	
 }
 
@@ -173,14 +175,24 @@ __global__ void render_init(int max_x, int max_y, curandState* rand_state)
 }
 
 // Allocate world
-__global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data)
+__global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Material** d_matList, Data* data)
 {
 	// Allocate new objects and world
 	if (threadIdx.x == 0 && blockIdx.x == 0)
 	{
+		for (int i = 0; i < data->materialCount; i++)
+		{
+			if (data->matData[i].matType == 0) // lambert
+				d_matList[i] = new Lambertian(data->matData[i].Col, data->matData[i].id);
+			if (data->matData[i].matType == 1) // metal
+				d_matList[i] = new Lambertian(data->matData[i].Col, data->matData[i].id);
+			if (data->matData[i].matType == 2) // dielectric
+				d_matList[i] = new Lambertian(data->matData[i].Col, data->matData[i].id);
+		}
+
 		for (int i = 0; i < data->objectCount; i++)
 		{
-			d_list[i] = new Sphere(data->objData[i].Pos, data->objData[i].radius, data->objData[i].id, new lambertian(vec3(0.8, 0.3, 0.3)));
+			d_list[i] = new Sphere(data->objData[i].Pos, data->objData[i].radius, data->objData[i].id, data->objData[i].matID, d_matList[data->objData[i].matID]);
 		}
 		*d_world = new Hittable_list(d_list, data->objectCount);
 		*d_camera = new Camera();
@@ -188,13 +200,19 @@ __global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_c
 }
 
 // Deallocate world
-__global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Data* data)
+__global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Material** d_matList, Data* data)
 {
 	for (int i = 0; i < data->objectCount; i++)
 	{
 		delete d_list[i];
 	}
-	delete ((Sphere*)d_list[0])->mat_ptr;
+
+	for (int i = 0; i < data->materialCount; i++)
+	{
+		delete d_matList[i];
+	}
+
+	//delete ((Sphere*)d_list[0])->mat_ptr;
 	delete* d_world;
 	delete* d_camera;
 }
@@ -210,7 +228,7 @@ void RayTracer::test()
 	cudaDeviceSynchronize();
 }
 
-__global__ void saveKernel(Hittable** world, Data* data)
+__global__ void saveKernel(Hittable** world, Material** matList, Data* data)
 {
 	if (threadIdx.x == 0 && blockIdx.x == 0)
 	{
@@ -219,33 +237,50 @@ __global__ void saveKernel(Hittable** world, Data* data)
 			data->objData[i].id = (*world)->getID(i);
 			data->objData[i].Pos = (*world)->getPosition(i);
 			data->objData[i].radius = (*world)->getRadius(i);
+			data->objData[i].matID = (*world)->getMatID(i);
 		};
+
+		for (int i = 0; i < data->materialCount; i++)
+		{
+			if (matList[i]->getType() == lambertian)
+			{
+				data->matData[i].id = matList[i]->getID();
+				data->matData[i].Col = matList[i]->getCol();
+				data->matData[i].matType = matList[i]->getType();
+			}
+			
+		}
 	}
 	
 }
 
 void RayTracer::save()
 {
-	saveKernel CUDA_KERNEL(1, 1)(d_world, d_data);
+	saveKernel CUDA_KERNEL(1, 1)(d_world, d_matList, d_data);
 	cudaDeviceSynchronize();
 	cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost);
 }
 
-__global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Data* data, int id, vec3 Pos, float radius)
-{
-	if (threadIdx.x == 0 && blockIdx.x == 0)
-	{
-		delete* d_world;
-		*d_world = new Hittable_list(d_list, data->objectCount + 1);
-		d_list[id] = new Sphere(Pos, radius, id, new lambertian(vec3(0.8, 0.3, 0.3)));
-		data->objectCount++;
-	}
-}
-
-void RayTracer::addObject(int id, vec3 Pos, float radius)
-{
-	cudaFree(d_list);
-	cudaMalloc(&d_list, data->objectCount+1 * sizeof(Hittable*));
-	addObjectKernel CUDA_KERNEL(1, 1)(d_list, d_world, d_data, id, Pos, radius);
-	cudaDeviceSynchronize();
-}
+//__global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Material** d_matList, Data* data, vec3 Pos, float radius)
+//{
+//	if (threadIdx.x == 0 && blockIdx.x == 0)
+//	{
+//		delete* d_world;
+//		*d_world = new Hittable_list(d_list, data->objectCount + 1);
+//		d_matList[data->materialCount] = new Lambertian(color(1.0, 0.5, 0.5), data->materialCount);
+//		d_list[data->objectCount] = new Sphere(Pos, radius, data->objectCount, data->materialCount, d_matList[data->materialCount]);
+//		data->objectCount++;
+//		data->materialCount++;
+//	}
+//}
+//
+//void RayTracer::addObject(int id, vec3 Pos, float radius)
+//{
+//	cudaFree(d_list);
+//	cudaMalloc(&d_list, data->objectCount+1 * sizeof(Hittable*));
+//	cudaFree(d_matList);
+//	cudaMalloc(&d_matList, data->materialCount + 1 * sizeof(Material*));
+//	addObjectKernel CUDA_KERNEL(1, 1)(d_list, d_world, d_matList, d_data, Pos, radius);
+//	cudaDeviceSynchronize();
+//	cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost);
+//}
