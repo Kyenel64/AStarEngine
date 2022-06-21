@@ -13,7 +13,7 @@
         -1.0,
         -1.0
     ],
-    "materialCount": 1,
+    "materialCount": 2,
     "materialData": [
         [
             0,
@@ -23,10 +23,19 @@
                 0.5
             ],
             0
+        ],
+        [
+            1,
+            [
+                1.0,
+                0.5,
+                0.2
+            ],
+            0
         ]
     ],
     "max_depth": 5,
-    "objectCount": 1,
+    "objectCount": 2,
     "objectData": [
         [
             0,
@@ -37,6 +46,16 @@
             ],
             0.5,
             0
+        ],
+        [
+            1,
+            [
+                0.0,
+                -100.5,
+                -1.0
+            ],
+            100,
+            1
         ]
     ],
     "origin": [

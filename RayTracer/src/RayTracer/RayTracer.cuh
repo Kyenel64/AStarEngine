@@ -22,6 +22,7 @@ public:
 	void test();
 	void save();
 	//void addObject(int id, vec3 Pos, float radius);
+	//void addMaterial(int id, color Col, materialType type);
 	
 	Data* getData() const;
 
@@ -35,7 +36,7 @@ private:
 	Data* d_data;				// device data
 	Hittable** d_list;			// list of objects
 	Hittable** d_world;			// pointer to scene
-	Material** d_matList;
+	Material** d_matList;		// list of materials
 	curandState* d_rand_state;  // device random variable
 	Camera** d_camera;			// camera 
 	

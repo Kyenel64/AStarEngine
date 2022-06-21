@@ -14,9 +14,22 @@
 __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color, int samples_per_pixel);
 __device__ color ray_color(const Ray& r, Hittable** world, curandState *local_rand_state, Data* data);
 __global__ void render(unsigned char* frame, Data* data, Hittable** world, Camera** camera, curandState *rand_state);
+__global__ void render_init(int max_x, int max_y, curandState* rand_state);
 __global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Material** d_matList, Data* data);
 __global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Material** d_matList, Data* data);
-__global__ void render_init(int max_x, int max_y, curandState* rand_state);
+
+#define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__)
+void check_cuda(cudaError_t result, char const* const func, const char* const file, int const line)
+{
+	if (result)
+	{
+		std::cerr << "CUDA error = " << static_cast<unsigned int>(result) << " at " <<
+			file << ":" << line << " '" << func << "' \n";
+		// Make sure we call CUDA Device Reset before exiting
+		cudaDeviceReset();
+		exit(99);
+	}
+}
 
 RayTracer::RayTracer(Data* data) : data(data)
 {
@@ -24,37 +37,37 @@ RayTracer::RayTracer(Data* data) : data(data)
 	frame_size = 3 * num_pixels * sizeof(float);
 	blockX = 8;
 	blockY = 8;
-
-	// ------------------ Allocations -----------------------
-	cudaMalloc(&d_list, data->objectCount * sizeof(Hittable *));
-	cudaMalloc(&d_world, sizeof(Hittable *));
-	cudaMalloc(&d_data, sizeof(Data));
-	cudaMemcpy(d_data, data, sizeof(Data), cudaMemcpyHostToDevice);
-	cudaMalloc(&d_camera, sizeof(Camera));
-	cudaMalloc(&d_matList, data->materialCount * sizeof(Material *));
-
-	cudaMallocManaged(&frame, frame_size);
-	cudaMallocManaged(&d_rand_state, num_pixels * sizeof(curandState));
 	dim3 blocks(data->image_width / blockX + 1, data->image_height / blockY + 1);
 	dim3 threads(blockX, blockY);
 
+	// ------------------ Allocations -----------------------
+	checkCudaErrors(cudaMalloc(&d_list, data->objectCount * sizeof(Hittable *)));
+	checkCudaErrors(cudaMalloc(&d_world, sizeof(Hittable *)));
+	checkCudaErrors(cudaMalloc(&d_data, sizeof(Data)));
+	checkCudaErrors(cudaMemcpy(d_data, data, sizeof(Data), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMalloc(&d_camera, sizeof(Camera)));
+	checkCudaErrors(cudaMalloc(&d_matList, data->materialCount * sizeof(Material *)));
+
+	checkCudaErrors(cudaMallocManaged(&frame, frame_size));
+	checkCudaErrors(cudaMallocManaged(&d_rand_state, num_pixels * sizeof(curandState)));
+
 	// ------------------- Kernel calls ---------------------
 	create_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_matList, d_data);
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 	render_init CUDA_KERNEL(blocks, threads)(data->image_width, data->image_height, d_rand_state);
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 
 }
 
 RayTracer::~RayTracer()
 {
 	free_world CUDA_KERNEL(1, 1)(d_list, d_world, d_camera, d_matList, d_data);
-	cudaFree(frame);
-	cudaFree(d_list);
-	cudaFree(d_world);
-	cudaFree(d_data);
-	cudaFree(d_camera);
-	cudaFree(d_matList);
+	checkCudaErrors(cudaFree(frame));
+	checkCudaErrors(cudaFree(d_list));
+	checkCudaErrors(cudaFree(d_world));
+	checkCudaErrors(cudaFree(d_data));
+	checkCudaErrors(cudaFree(d_camera));
+	checkCudaErrors(cudaFree(d_matList));
 	
 }
 
@@ -79,7 +92,7 @@ bool RayTracer::GenerateFrame()
 	dim3 threads(blockX, blockY);
 
 	render CUDA_KERNEL(blocks, threads)(frame, d_data, d_world, d_camera, d_rand_state);
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 
 
 	auto stop = std::chrono::high_resolution_clock::now();
@@ -192,7 +205,13 @@ __global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_c
 
 		for (int i = 0; i < data->objectCount; i++)
 		{
-			d_list[i] = new Sphere(data->objData[i].Pos, data->objData[i].radius, data->objData[i].id, data->objData[i].matID, d_matList[data->objData[i].matID]);
+			d_list[i] = new Sphere(data->objData[i].Pos, data->objData[i].radius, data->objData[i].id, data->objData[i].matID);
+			// Set mat_ptr for sphere to its assigned material.
+			for (int j = 0; j < data->materialCount; j++)
+			{
+				if (d_matList[j]->getID() == d_list[i]->getMatID(data->objData[i].id))
+					d_list[i]->mat_ptr = d_matList[j];
+			}
 		}
 		*d_world = new Hittable_list(d_list, data->objectCount);
 		*d_camera = new Camera();
@@ -211,8 +230,6 @@ __global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_cam
 	{
 		delete d_matList[i];
 	}
-
-	//delete ((Sphere*)d_list[0])->mat_ptr;
 	delete* d_world;
 	delete* d_camera;
 }
@@ -225,7 +242,7 @@ __global__ void testKernel(Hittable **world)
 void RayTracer::test()
 {
 	testKernel CUDA_KERNEL(1, 1)(d_world);
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 }
 
 __global__ void saveKernel(Hittable** world, Material** matList, Data* data)
@@ -242,12 +259,11 @@ __global__ void saveKernel(Hittable** world, Material** matList, Data* data)
 
 		for (int i = 0; i < data->materialCount; i++)
 		{
+			data->matData[i].id = matList[i]->getID();
+			data->matData[i].Col = matList[i]->getCol();
+
 			if (matList[i]->getType() == lambertian)
-			{
-				data->matData[i].id = matList[i]->getID();
-				data->matData[i].Col = matList[i]->getCol();
 				data->matData[i].matType = matList[i]->getType();
-			}
 			
 		}
 	}
@@ -257,8 +273,8 @@ __global__ void saveKernel(Hittable** world, Material** matList, Data* data)
 void RayTracer::save()
 {
 	saveKernel CUDA_KERNEL(1, 1)(d_world, d_matList, d_data);
-	cudaDeviceSynchronize();
-	cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost);
+	checkCudaErrors(cudaDeviceSynchronize());
+	checkCudaErrors(cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost));
 }
 
 //__global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Material** d_matList, Data* data, vec3 Pos, float radius)
