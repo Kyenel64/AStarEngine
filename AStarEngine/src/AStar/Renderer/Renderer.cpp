@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include <iostream>
+#include <vector>
 
 // Simple shaders to display texture quad on screen.
 const char* vertexShaderSource = 
@@ -32,7 +33,9 @@ const char* fragmentShaderSource =
 "}";
 
 // declarations
+std::vector<float> toVector(vec3 vec);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_MAJOR, 
 	int GLVERSION_MINOR) : RT(RT), data(data)
@@ -152,7 +155,7 @@ void Renderer::processInput()
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		//RT->addObject(data->objectCount, vec3(0, 1, -3), 1.0);
+		//RT->addObject(vec3 Pos, float radius);
 	}
 }
 
@@ -162,26 +165,37 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	//glViewport(0, 0, width, height);
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	// Try to implement using callback input instead of pull events input.
+}
+
+// Output data to json file.
 void Renderer::serialize()
 {
 	json j;
 	data = RT->getData();
+
+	// Image properties
 	j["title"] = data->title;
 	j["aspect_ratio"] = data->aspect_ratio;
 	j["image_width"] = data->image_width;
 	j["image_height"] = data->image_height;
 
+	// Rendering properties
 	j["samples_per_pixel"] = data->samples_per_pixel;
 	j["max_depth"] = data->max_depth;
 
-	j["viewport_height"] = data->viewport_height;
-	j["viewport_width"] = data->viewport_width;
+	// Camera properties
+	j["fov"] = data->fov;
 	j["focal_length"] = data->focal_length;
 	j["origin"] = { data->origin.x(), data->origin.y(), data->origin.z() };
-	j["horizontal"] = { data->horizontal.x(), data->horizontal.y(), data->horizontal.z() };
-	j["vertical"] = { data->vertical.x(), data->vertical.y(), data->vertical.z() };
-	j["lower_left_corner"] = { data->lower_left_corner.x(), data->lower_left_corner.y(), data->lower_left_corner.z() };
+	j["lookAt"] = { data->lookAt.x(), data->lookAt.y(), data->lookAt.z() };
+	j["up"] = { data->up.x(), data->up.y(), data->up.z() };
+	j["dist_to_focus"] = data->dist_to_focus;
+	j["aperture"] = data->aperture;
 
+	// Object properties
 	j["objectCount"] = data->objectCount;
 	for (int i = 0; i < data->objectCount; i++)
 	{
@@ -191,6 +205,7 @@ void Renderer::serialize()
 		j["objectData"][i][3] = data->objData[i].matID;
 	}
 
+	// Material properties
 	j["materialCount"] = data->materialCount;
 	for (int i = 0; i < data->materialCount; i++)
 	{
@@ -201,4 +216,13 @@ void Renderer::serialize()
 
 	std::ofstream o("../save/save.astar");
 	o << std::setw(4) << j << std::endl;
+}
+
+std::vector<float> toVector(vec3 vec)
+{
+	std::vector<float> v;
+	v.push_back(vec.x());
+	v.push_back(vec.y());
+	v.push_back(vec.z());
+	return v;
 }

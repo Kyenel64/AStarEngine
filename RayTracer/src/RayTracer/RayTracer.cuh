@@ -21,7 +21,7 @@ public:
 
 	void test();
 	void save();
-	//void addObject(int id, vec3 Pos, float radius);
+	void addObject(vec3 Pos, float radius);
 	//void addMaterial(int id, color Col, materialType type);
 	
 	Data* getData() const;

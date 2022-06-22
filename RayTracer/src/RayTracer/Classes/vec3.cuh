@@ -163,3 +163,13 @@ __device__ inline vec3 random_unit_vector(curandState* local_rand_state)
 {
     return unit_vector(random_in_unit_sphere(local_rand_state));
 }
+
+__device__ inline vec3 random_in_unit_disk(curandState* local_rand_state)
+{
+    vec3 p;
+    do
+    {
+        p = vec3(curand_uniform(local_rand_state), curand_uniform(local_rand_state), 0);
+    } while (dot(p, p) >= 1.0f);
+    return p;
+}

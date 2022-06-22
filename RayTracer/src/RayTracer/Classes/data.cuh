@@ -11,7 +11,7 @@ enum materialType
 struct objectData
 {
 	int id = 0;
-	vec3 Pos = vec3(0, 0, -1);
+	vec3 Pos = vec3(0, 0, 0);
 	float radius = 0.5;
 	int matID = 0;
 };
@@ -36,18 +36,20 @@ struct Data
 	int max_depth = 5;
 
 	// Camera properties
-	float viewport_height = 2.0;
-	float viewport_width = aspect_ratio * viewport_height;
+	float fov = 20.0; //
 	float focal_length = 1.0;
-	point3 origin = vec3(0, 0, 0);
-	vec3 horizontal = vec3(viewport_width, 0, 0);
-	vec3 vertical = vec3(0, viewport_height, 0);
-	point3 lower_left_corner = origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
+	point3 origin = point3(0, 1, 5);
+	point3 lookAt = point3(0, 0, 0);
+	vec3 up = vec3(0, 1, 0);
+	float dist_to_focus = 5.0;
+	float aperture = 0.00001;
 
+	// Object properties
 	int objectCount = 1;
 	objectData defaultSphere;
 	objectData objData[1000] = { defaultSphere };
 
+	// Material properties
 	int materialCount = 1;
 	materialData defaultMat;
 	materialData matData[100] = { defaultMat };

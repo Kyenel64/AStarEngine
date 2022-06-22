@@ -15,6 +15,8 @@ int main()
 
 	Renderer r(RT, data, data->title, 4, 3);
 
+	std::string s;
+
 	while (true)
 	{
 		r.processInput();
@@ -35,22 +37,26 @@ bool deserialize(Data* data, std::string path)
 		return false;
 	saveFile >> j;
 
+	// Image properties
 	data->title = j["title"];
 	data->aspect_ratio = j["aspect_ratio"];
 	data->image_width = j["image_width"];
 	data->image_height = j["image_height"];
 
+	// Rendering properties
 	data->samples_per_pixel = j["samples_per_pixel"];
 	data->max_depth = j["max_depth"];
 
-	data->viewport_height = j["viewport_height"];
-	data->viewport_width = j["viewport_width"];
+	// Camera properties
+	data->fov = j["fov"];
 	data->focal_length = j["focal_length"];
 	data->origin = toVec3(j["origin"]);
-	data->horizontal = toVec3(j["horizontal"]);
-	data->vertical = toVec3(j["vertical"]);
-	data->lower_left_corner = toVec3(j["lower_left_corner"]);
+	data->lookAt = toVec3(j["lookAt"]);
+	data->up = toVec3(j["up"]);
+	data->dist_to_focus = j["dist_to_focus"];
+	data->aperture = j["aperture"];
 	
+	// Object properties
 	data->objectCount = j["objectCount"];
 	for (int i = 0; i < data->objectCount; i++)
 	{
@@ -60,6 +66,7 @@ bool deserialize(Data* data, std::string path)
 		data->objData[i].matID = j["objectData"][i][3];
 	}
 
+	// Material properties
 	data->materialCount = j["materialCount"];
 	for (int i = 0; i < data->materialCount; i++)
 	{

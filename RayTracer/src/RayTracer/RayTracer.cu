@@ -168,7 +168,7 @@ __global__ void render(unsigned char* frame, Data* data, Hittable **world, Camer
 	{
 		float u = float(i + curand_uniform(&local_rand_state)) / float(data->image_width - 1);
 		float v = float(j + curand_uniform(&local_rand_state)) / float(data->image_height - 1);
-		Ray r = (*camera)->get_ray(u, v);
+		Ray r = (*camera)->get_ray(u, v, &local_rand_state);
 		pixel_color += ray_color(r, world, &local_rand_state, data);
 	}
 	write_color(frame, pixel_index, pixel_color, data->samples_per_pixel);
@@ -214,7 +214,7 @@ __global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_c
 			}
 		}
 		*d_world = new Hittable_list(d_list, data->objectCount);
-		*d_camera = new Camera();
+		*d_camera = new Camera(data);
 	}
 }
 
@@ -277,26 +277,15 @@ void RayTracer::save()
 	checkCudaErrors(cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost));
 }
 
-//__global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Material** d_matList, Data* data, vec3 Pos, float radius)
-//{
-//	if (threadIdx.x == 0 && blockIdx.x == 0)
-//	{
-//		delete* d_world;
-//		*d_world = new Hittable_list(d_list, data->objectCount + 1);
-//		d_matList[data->materialCount] = new Lambertian(color(1.0, 0.5, 0.5), data->materialCount);
-//		d_list[data->objectCount] = new Sphere(Pos, radius, data->objectCount, data->materialCount, d_matList[data->materialCount]);
-//		data->objectCount++;
-//		data->materialCount++;
-//	}
-//}
-//
-//void RayTracer::addObject(int id, vec3 Pos, float radius)
-//{
-//	cudaFree(d_list);
-//	cudaMalloc(&d_list, data->objectCount+1 * sizeof(Hittable*));
-//	cudaFree(d_matList);
-//	cudaMalloc(&d_matList, data->materialCount + 1 * sizeof(Material*));
-//	addObjectKernel CUDA_KERNEL(1, 1)(d_list, d_world, d_matList, d_data, Pos, radius);
-//	cudaDeviceSynchronize();
-//	cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost);
-//}
+__global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Material** d_matList, Data* data, vec3 Pos, float radius)
+{
+	if (threadIdx.x == 0 && blockIdx.x == 0)
+	{
+		
+	}
+}
+
+void RayTracer::addObject(vec3 Pos, float radius)
+{
+	std::cout << "test";
+}
