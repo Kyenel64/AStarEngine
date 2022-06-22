@@ -287,5 +287,5 @@ __global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Material*
 
 void RayTracer::addObject(vec3 Pos, float radius)
 {
-	std::cout << "test";
+	
 }

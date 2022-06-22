@@ -19,8 +19,9 @@ public:
 
 	void Render();
 
+	RayTracer* getRayTracer() const;
+
 	void serialize();
-	void processInput();
 
 private:
 	GLFWwindow* window;

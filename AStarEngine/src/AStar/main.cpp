@@ -19,7 +19,6 @@ int main()
 
 	while (true)
 	{
-		r.processInput();
 		r.Render();
 	}
 

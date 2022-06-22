@@ -54,7 +54,11 @@ Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_M
 		glfwTerminate();
 	}
 
+	// Create pointer to Renderer in GLFW context
+	glfwSetWindowUserPointer(window, this);
+
 	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, key_callback);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// Initialize GLAD
@@ -109,7 +113,6 @@ Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_M
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
 }
@@ -139,24 +142,9 @@ void Renderer::Render()
 	glfwPollEvents();
 }
 
-void Renderer::processInput()
+RayTracer* Renderer::getRayTracer() const
 {
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	{
-		RT->test();
-	}
-
-	if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) &&
-		(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS))
-	{
-		RT->save();
-		serialize();
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		//RT->addObject(vec3 Pos, float radius);
-	}
+	return RT;
 }
 
 // dont implement until resizing works properly
@@ -167,7 +155,26 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	// Try to implement using callback input instead of pull events input.
+	// Get pointer to Renderer and RayTracer classes
+	Renderer* RD = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+	RayTracer* RT = RD->getRayTracer();
+
+	// Single key inputs
+	switch (key)
+	{
+		case GLFW_KEY_W:
+			RT->test();
+			break;
+		case GLFW_KEY_SPACE:
+			RT->addObject(vec3(0, 1, 0), 0.5);
+			break;
+	}
+
+	if (key == GLFW_KEY_S && mods == GLFW_MOD_CONTROL)
+	{
+		RT->save();
+		RD->serialize();
+	}
 }
 
 // Output data to json file.
