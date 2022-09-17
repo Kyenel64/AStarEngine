@@ -7,5 +7,6 @@
 <br />- GLAD
 <br />- KHR
 
-<br />Links:
-<br />https://trello.com/b/Nt5QE8yd/astar-engine
+<br /> Controls:
+<br /> WASD - movement
+<br /> X - Enable raytracing
