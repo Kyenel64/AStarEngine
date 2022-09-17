@@ -1,12 +1,30 @@
 #pragma once
 #include "vec3.cuh"
 
+enum RenderMode
+{
+	Solid,
+	Render
+};
+
+enum Direction
+{
+	FORWARD,
+	BACKWARD,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN
+};
+
 enum materialType
 {
 	lambertian,
 	metal,
 	dielectric
 };
+
+
 
 struct objectData
 {

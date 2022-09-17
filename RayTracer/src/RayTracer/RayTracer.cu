@@ -12,7 +12,7 @@
 #endif
 
 __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_color, int samples_per_pixel);
-__device__ color ray_color(const Ray& r, Hittable** world, curandState *local_rand_state, Data* data);
+__device__ color ray_color_render(const Ray& r, Hittable** world, curandState *local_rand_state, Data* data);
 __global__ void render(unsigned char* frame, Data* data, Hittable** world, Camera** camera, curandState *rand_state);
 __global__ void render_init(int max_x, int max_y, curandState* rand_state);
 __global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera, Material** d_matList, Data* data);
@@ -121,7 +121,7 @@ __device__ void write_color(unsigned char* frame, int pixel_index, color pixel_c
 }
 
 // Return color of pixel
-__device__ color ray_color(const Ray& r, Hittable **world, curandState *local_rand_state, Data* data)
+__device__ color ray_color_render(const Ray& r, Hittable **world, curandState *local_rand_state, Data* data)
 {
 	Ray cur_ray = r;
 	vec3 cur_attenuation = vec3(1, 1, 1);
@@ -153,6 +153,20 @@ __device__ color ray_color(const Ray& r, Hittable **world, curandState *local_ra
 	return vec3(0.0, 0.0, 0.0); // exceeded recursion
 }
 
+__device__ color ray_color_solid(const Ray& r, Hittable** world, Camera** camera, Data* data)
+{
+	// temp hit record
+	hit_record rec;
+	if ((*world)->hit(r, 0, FLT_MAX, rec)) {
+		return rec.mat_ptr->getCol();
+	}
+
+	// background color
+	vec3 unit_direction = unit_vector(r.direction());
+	auto t = 0.5 * (unit_direction.y() + 1.0);
+	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+}
+
 __global__ void render(unsigned char* frame, Data* data, Hittable **world, Camera **camera, curandState *rand_state) {
 	// Initializations
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -164,14 +178,26 @@ __global__ void render(unsigned char* frame, Data* data, Hittable **world, Camer
 	curandState local_rand_state = rand_state[rand_index];
 
 	color pixel_color;
-	for (int s = 0; s < data->samples_per_pixel; s++)
+	if ((*camera)->getRenderMode() == Render)
 	{
-		float u = float(i + curand_uniform(&local_rand_state)) / float(data->image_width - 1);
-		float v = float(j + curand_uniform(&local_rand_state)) / float(data->image_height - 1);
-		Ray r = (*camera)->get_ray(u, v, &local_rand_state);
-		pixel_color += ray_color(r, world, &local_rand_state, data);
+		for (int s = 0; s < data->samples_per_pixel; s++)
+		{
+			float u = float(i + curand_uniform(&local_rand_state)) / float(data->image_width - 1);
+			float v = float(j + curand_uniform(&local_rand_state)) / float(data->image_height - 1);
+			Ray r = (*camera)->get_ray(u, v, &local_rand_state);
+			pixel_color += ray_color_render(r, world, &local_rand_state, data);
+		}
+		write_color(frame, pixel_index, pixel_color, data->samples_per_pixel);
 	}
-	write_color(frame, pixel_index, pixel_color, data->samples_per_pixel);
+	else if ((*camera)->getRenderMode() == Solid)
+	{
+		float u = float(i) / float(data->image_width - 1);
+		float v = float(j) / float(data->image_height - 1);
+		Ray r = (*camera)->get_ray(u, v, &local_rand_state);
+		pixel_color = ray_color_solid(r, world, camera, data);
+		write_color(frame, pixel_index, pixel_color, 1);
+	}
+	
 }
 
 __global__ void render_init(int max_x, int max_y, curandState* rand_state)
@@ -234,16 +260,6 @@ __global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_cam
 	delete* d_camera;
 }
 
-__global__ void testKernel(Hittable **world)
-{
-	(*world)->setPosition(vec3(1, 0, -2));
-}
-
-void RayTracer::test()
-{
-	testKernel CUDA_KERNEL(1, 1)(d_world);
-	checkCudaErrors(cudaDeviceSynchronize());
-}
 
 __global__ void saveKernel(Hittable** world, Material** matList, Data* data)
 {
@@ -264,12 +280,9 @@ __global__ void saveKernel(Hittable** world, Material** matList, Data* data)
 
 			if (matList[i]->getType() == lambertian)
 				data->matData[i].matType = matList[i]->getType();
-			
 		}
 	}
-	
 }
-
 void RayTracer::save()
 {
 	saveKernel CUDA_KERNEL(1, 1)(d_world, d_matList, d_data);
@@ -277,15 +290,56 @@ void RayTracer::save()
 	checkCudaErrors(cudaMemcpy(data, d_data, sizeof(Data), cudaMemcpyDeviceToHost));
 }
 
-__global__ void addObjectKernel(Hittable** d_list, Hittable** d_world, Material** d_matList, Data* data, vec3 Pos, float radius)
+
+__global__ void setRenderModeKernel(Camera** camera)
 {
 	if (threadIdx.x == 0 && blockIdx.x == 0)
 	{
-		
+		switch ((*camera)->getRenderMode())
+		{
+			case Render:
+				(*camera)->setRenderMode(Solid);
+				break;
+			case Solid:
+				(*camera)->setRenderMode(Render);
+				break;
+		}
 	}
+	
+}
+void RayTracer::setRenderMode()
+{
+	setRenderModeKernel CUDA_KERNEL(1, 1)(d_camera);
+	checkCudaErrors(cudaDeviceSynchronize());
 }
 
-void RayTracer::addObject(vec3 Pos, float radius)
+
+__global__ void movementKernel(Camera** camera, Direction dir, float deltaTime)
 {
-	
+	if (dir == FORWARD)
+		(*camera)->move(FORWARD, deltaTime);
+	if (dir == BACKWARD)
+		(*camera)->move(BACKWARD, deltaTime);
+	if (dir == LEFT)
+		(*camera)->move(LEFT, deltaTime);
+	if (dir == RIGHT)
+		(*camera)->move(RIGHT, deltaTime);
+}
+
+void RayTracer::move(Direction dir, float deltaTime)
+{
+	movementKernel CUDA_KERNEL(1, 1)(d_camera, dir, deltaTime);
+	checkCudaErrors(cudaDeviceSynchronize());
+}
+
+__global__ void mouseMoveKernel(Camera** camera, float x, float y)
+{
+	(*camera)->processMouseMove(x, y);
+
+}
+
+void RayTracer::mouseMove(float x, float y)
+{
+	mouseMoveKernel CUDA_KERNEL(1, 1)(d_camera, x, y);
+	checkCudaErrors(cudaDeviceSynchronize());
 }

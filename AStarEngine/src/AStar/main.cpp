@@ -45,7 +45,7 @@ bool deserialize(Data* data, std::string path)
 	// Rendering properties
 	data->samples_per_pixel = j["samples_per_pixel"];
 	data->max_depth = j["max_depth"];
-
+	
 	// Camera properties
 	data->fov = j["fov"];
 	data->focal_length = j["focal_length"];
@@ -54,7 +54,7 @@ bool deserialize(Data* data, std::string path)
 	data->up = toVec3(j["up"]);
 	data->dist_to_focus = j["dist_to_focus"];
 	data->aperture = j["aperture"];
-	
+
 	// Object properties
 	data->objectCount = j["objectCount"];
 	for (int i = 0; i < data->objectCount; i++)

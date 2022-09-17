@@ -18,6 +18,7 @@ public:
 	~Renderer();
 
 	void Render();
+	void processInput(GLFWwindow* window);
 
 	RayTracer* getRayTracer() const;
 

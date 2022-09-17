@@ -19,10 +19,12 @@ public:
 
 	bool GenerateFrame();
 
-	void test();
+	void move(Direction dir, float deltaTime);
+	void mouseMove(float x, float y);
 	void save();
-	void addObject(vec3 Pos, float radius);
 	//void addMaterial(int id, color Col, materialType type);
+
+	void setRenderMode();
 	
 	Data* getData() const;
 
@@ -39,5 +41,4 @@ private:
 	Material** d_matList;		// list of materials
 	curandState* d_rand_state;  // device random variable
 	Camera** d_camera;			// camera 
-	
 };

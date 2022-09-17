@@ -36,6 +36,14 @@ const char* fragmentShaderSource =
 std::vector<float> toVector(vec3 vec);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+
+float lastFrame = 0.0;
+float deltaTime = 0.0;
+
+float lastX = 1920 / 2.0f;
+float lastY = 1080 / 2.0f;
+bool firstMouse = true;
 
 Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_MAJOR, 
 	int GLVERSION_MINOR) : RT(RT), data(data)
@@ -60,6 +68,7 @@ Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_M
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	// Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -69,6 +78,7 @@ Renderer::Renderer(RayTracer* RT, Data* data, std::string title, int GLVERSION_M
 
 	// Set viewport inside the window
 	glViewport(0, 0, data->image_width, data->image_height);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	Shader* ourShader = new Shader(vertexShaderSource, fragmentShaderSource);
 
@@ -124,6 +134,13 @@ Renderer::~Renderer()
 
 void Renderer::Render()
 {
+	processInput(window);
+
+	// calculate deltaTime
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+
 	if (glfwWindowShouldClose(window))
 		glfwTerminate();
 
@@ -159,22 +176,58 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	Renderer* RD = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
 	RayTracer* RT = RD->getRayTracer();
 
-	// Single key inputs
-	switch (key)
-	{
-		case GLFW_KEY_W:
-			RT->test();
-			break;
-		case GLFW_KEY_SPACE:
-			RT->addObject(vec3(0, 1, 0), 0.5);
-			break;
-	}
-
-	if (key == GLFW_KEY_S && mods == GLFW_MOD_CONTROL)
+	if (key == GLFW_KEY_S && mods == GLFW_MOD_CONTROL && action == GLFW_PRESS)
 	{
 		RT->save();
 		RD->serialize();
 	}
+
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	{
+		//
+	}
+
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	{
+		RT->setRenderMode();
+	}
+}
+
+void Renderer::processInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		RT->move(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		RT->move(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		RT->move(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		RT->move(RIGHT, deltaTime);
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+	Renderer* RD = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+	RayTracer* RT = RD->getRayTracer();
+	float xpos = (float)(xposIn);
+	float ypos = (float)(yposIn);
+
+	// Prevent frame skip on first mouse input
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+
+	RT->mouseMove(xoffset, yoffset);
+
 }
 
 // Output data to json file.
@@ -192,7 +245,7 @@ void Renderer::serialize()
 	// Rendering properties
 	j["samples_per_pixel"] = data->samples_per_pixel;
 	j["max_depth"] = data->max_depth;
-
+	
 	// Camera properties
 	j["fov"] = data->fov;
 	j["focal_length"] = data->focal_length;
